@@ -682,3 +682,49 @@
     };
 
 })();
+
+// ─────────── 初始化：绑定语言切换按钮 ───────────
+(function initTtsLangButtons() {
+    const btns = document.querySelectorAll('.tts-lang-btn');
+    if (!btns.length) return;
+
+    // 从 localStorage 恢复上次选择的语言
+    const savedLang = localStorage.getItem('tts_lang') || 'RAW';
+
+    // 定义切换函数（覆盖之前可能缺失的）
+    window._setTtsLang = function(lang, btn) {
+        // 移除所有按钮的 active 状态
+        btns.forEach(function(b) {
+            b.classList.remove('active');
+            b.style.border = '1px solid var(--border-color)';
+            b.style.background = 'transparent';
+            b.style.color = 'var(--text-secondary)';
+        });
+        // 激活当前按钮
+        if (btn) {
+            btn.classList.add('active');
+            btn.style.border = '1px solid var(--accent-color)';
+            btn.style.background = 'rgba(var(--accent-color-rgb), 0.1)';
+            btn.style.color = 'var(--accent-color)';
+        }
+        // 保存到 localStorage
+        localStorage.setItem('tts_lang', lang);
+        // 同时更新配置里的 targetLang
+        const cfg = JSON.parse(localStorage.getItem('voiceTtsConfig') || '{}');
+        cfg.targetLang = lang;
+        localStorage.setItem('voiceTtsConfig', JSON.stringify(cfg));
+    };
+
+    // 为每个按钮绑定点击事件
+    btns.forEach(function(btn) {
+        const lang = btn.getAttribute('data-lang');
+        if (!lang) return;
+        btn.addEventListener('click', function() {
+            window._setTtsLang(lang, this);
+        });
+        // 恢复上次选中的状态
+        if (lang === savedLang) {
+            window._setTtsLang(lang, btn);
+        }
+    });
+})();
