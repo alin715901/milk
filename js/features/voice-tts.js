@@ -946,3 +946,56 @@ window._setTtsStylePreset = function(btn) {
     });
     observer.observe(btn, { attributes: true, attributeFilter: ['disabled'] });
 })();
+
+// 绑定“试听”按钮，使用表单当前填写的值
+(function fixPreviewBtn() {
+    const previewBtn = document.getElementById('tts-preview-btn');
+    if (!previewBtn) return;
+
+    // 移除原有事件（如果有），绑定新事件
+    previewBtn.addEventListener('click', async function() {
+        // 读取表单当前值（未保存的）
+        const key = document.getElementById('tts-minimax-key')?.value.trim();
+        const gid = document.getElementById('tts-group-id')?.value.trim();
+        const vid = document.getElementById('tts-voice-id')?.value.trim();
+        const model = document.getElementById('tts-model')?.value || 'speech-02-turbo';
+        const lang = localStorage.getItem('tts_lang') || 'RAW';
+
+        if (!key || !gid || !vid) {
+            alert('请先填写 MiniMax API Key、Group ID 和 Voice ID');
+            return;
+        }
+
+        // 显示加载状态
+        previewBtn.disabled = true;
+        previewBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 生成中…';
+
+        try {
+            const audioUrl = await window.voiceTTS.previewWithConfig({
+                minimaxKey: key,
+                groupId: gid,
+                voiceId: vid,
+                model: model,
+                targetLang: lang
+            });
+
+            // 播放试听音频（使用已保存的语速）
+            const audio = new Audio(audioUrl);
+            const speed = parseFloat(document.getElementById('tts-speed')?.value) || 1.0;
+            audio.preservesPitch = true;
+            audio.playbackRate = speed;
+            audio.play();
+
+            previewBtn.innerHTML = '<i class="fas fa-check"></i> 试听成功';
+            setTimeout(() => {
+                previewBtn.innerHTML = '<i class="fas fa-play"></i> 试听';
+                previewBtn.disabled = false;
+            }, 2000);
+        } catch (err) {
+            alert('试听失败：' + (err.message || err));
+            previewBtn.innerHTML = '<i class="fas fa-play"></i> 试听';
+            previewBtn.disabled = false;
+            console.error('[试听] 错误:', err);
+        }
+    });
+})();
