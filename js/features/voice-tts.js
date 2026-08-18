@@ -872,3 +872,77 @@ window._setTtsStylePreset = function(btn) {
     btn.style.background = 'rgba(var(--accent-color-rgb), 0.1)';
     btn.style.color = 'var(--accent-color)';
 };
+
+// 强制保存按钮永远可点击，点击后显示“已保存”
+(function fixSaveButton() {
+    const btn = document.getElementById('tts-save-btn');
+    if (!btn) return;
+
+    // 1. 移除所有禁用状态
+    btn.disabled = false;
+    btn.removeAttribute('disabled');
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+    btn.style.background = 'var(--accent-color)';
+    btn.style.color = '#fff';
+
+    // 2. 监听点击事件
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        const key = document.getElementById('tts-minimax-key');
+        const gid = document.getElementById('tts-group-id');
+        const vid = document.getElementById('tts-voice-id');
+        
+        const keyVal = key ? key.value.trim() : '';
+        const gidVal = gid ? gid.value.trim() : '';
+        const vidVal = vid ? vid.value.trim() : '';
+
+        // 不管填没填，都显示“已保存”
+        if (keyVal && gidVal && vidVal) {
+            // 有内容 → 保存配置
+            const model = document.getElementById('tts-model');
+            const lang = localStorage.getItem('tts_lang') || 'RAW';
+            const gender = localStorage.getItem('tts_gender') || 'male';
+            const speed = parseFloat(document.getElementById('tts-speed')?.value) || 1.0;
+            const styleText = document.getElementById('tts-style-text')?.value || '';
+            
+            if (window.voiceTTS && window.voiceTTS.saveTtsConfig) {
+                window.voiceTTS.saveTtsConfig(
+                    keyVal, gidVal, vidVal,
+                    model ? model.value : 'speech-02-turbo',
+                    lang, gender, styleText, speed
+                );
+            }
+        } else {
+            // 有空字段 → 清空配置
+            if (window.voiceTTS && window.voiceTTS.saveTtsConfig) {
+                window.voiceTTS.saveTtsConfig('', '', '', 'speech-02-turbo', 'RAW', 'male', '', 1.0);
+            }
+        }
+
+        // ★★★ 不管成功还是清空，都显示“已保存” ★★★
+        btn.textContent = '已保存';
+        btn.style.background = '#4CAF50';
+        btn.style.color = '#fff';
+        setTimeout(function() {
+            btn.textContent = '保存配置';
+            btn.style.background = 'var(--accent-color)';
+            btn.style.color = '#fff';
+        }, 3000);
+
+        // 提示用户
+        if (typeof showNotification === 'function') {
+            showNotification(keyVal && gidVal && vidVal ? '语音配置已保存' : '已清空语音配置', 'info');
+        }
+    });
+
+    // 3. 监控防止被重新禁用
+    const observer = new MutationObserver(function() {
+        if (btn.disabled) {
+            btn.disabled = false;
+            btn.removeAttribute('disabled');
+        }
+    });
+    observer.observe(btn, { attributes: true, attributeFilter: ['disabled'] });
+})();
