@@ -2533,57 +2533,129 @@ function applyAllAvatarFrames() {
 }
 
 function _renderVoiceTab(list, itemsToRender) {
-    // 如果语音列表为空，显示"暂无语音"
-    if (!itemsToRender || itemsToRender.length === 0) {
-        list.innerHTML = renderEmptyState('暂无语音');
+    if (!itemsToRender) itemsToRender = customVoice || [];
+    
+    // 渲染语音列表 + 批量添加按钮
+    let html = `
+        <div style="padding:12px 16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap;">
+                <span style="font-size:13px;font-weight:600;color:var(--text-primary);">🎵 语音管理</span>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <button id="voice-add-single-btn" style="padding:5px 12px;border:none;border-radius:8px;background:var(--accent-color);color:#fff;cursor:pointer;font-size:12px;font-family:var(--font-family);">+ 添加</button>
+                    <button id="voice-add-batch-btn" style="padding:5px 12px;border:1px solid var(--accent-color);border-radius:8px;background:transparent;color:var(--accent-color);cursor:pointer;font-size:12px;font-family:var(--font-family);">📋 批量添加</button>
+                </div>
+            </div>
+            <div id="voice-list-container"></div>
+        </div>
+    `;
+    list.innerHTML = html;
+    
+    // 渲染语音列表
+    renderVoiceListItems();
+    
+    // 绑定单条添加按钮
+    document.getElementById('voice-add-single-btn').addEventListener('click', function() {
+        const url = prompt('请输入语音文件的URL（如 https://xxx.mp3）:');
+        if (!url || !url.trim()) return;
+        const label = prompt('请输入语音名称（选填）:') || '语音';
+        const duration = prompt('请输入时长（秒，选填）:') || 0;
+        const voiceList = customVoice || [];
+        voiceList.push({ url: url.trim(), label: label.trim(), duration: Number(duration) || 0 });
+        if (typeof throttledSaveData === 'function') throttledSaveData();
+        renderVoiceListItems();
+        showNotification('✓ 语音已添加', 'success');
+    });
+    
+    // 绑定批量添加按钮
+    document.getElementById('voice-add-batch-btn').addEventListener('click', function() {
+        const input = prompt(
+            '请输入多条语音，每行一条，格式：\n' +
+            'URL | 名称 | 时长(秒)\n\n' +
+            '示例：\n' +
+            'https://example.com/1.mp3 | 早安 | 3\n' +
+            'https://example.com/2.mp3 | 晚安 | 5\n\n' +
+            '（名称和时长可选，用 | 分隔）'
+        );
+        if (!input || !input.trim()) return;
+        
+        const lines = input.split('\n').filter(line => line.trim());
+        let added = 0;
+        lines.forEach(line => {
+            const parts = line.split('|').map(s => s.trim());
+            const url = parts[0];
+            if (!url) return;
+            const label = parts[1] || '语音';
+            const duration = parseInt(parts[2]) || 0;
+            const voiceList = customVoice || [];
+            voiceList.push({ url, label, duration });
+            added++;
+        });
+        if (typeof throttledSaveData === 'function') throttledSaveData();
+        renderVoiceListItems();
+        showNotification(`✓ 成功添加 ${added} 条语音`, 'success');
+    });
+    
+    function renderVoiceListItems() {
+        const container = document.getElementById('voice-list-container');
+        if (!container) return;
+        const voiceList = customVoice || [];
+        if (voiceList.length === 0) {
+            container.innerHTML = '<div style="color:var(--text-secondary);font-size:13px;opacity:0.7;padding:16px 0;text-align:center;">暂无语音，点击上方添加</div>';
+            return;
+        }
+        container.innerHTML = voiceList.map((item, index) => {
+            const url = typeof item === 'string' ? item : (item.url || '');
+            const label = typeof item === 'string' ? item : (item.label || '语音');
+            const duration = item.duration || 0;
+            return `
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid var(--border-color);">
+                    <span style="font-size:16px;">🎵</span>
+                    <span style="flex:1;font-size:13px;color:var(--text-primary);word-break:break-all;">${escapeHtml(label)}</span>
+                    <span style="font-size:11px;color:var(--text-secondary);flex-shrink:0;">${duration}"</span>
+                    <button onclick="window._cvPlayVoice('${url}')" style="padding:3px 10px;border:1px solid var(--border-color);border-radius:5px;background:transparent;cursor:pointer;font-size:11px;font-family:var(--font-family);flex-shrink:0;">▶</button>
+                    <button onclick="window._cvDeleteVoice(${index})" style="padding:3px 6px;border:none;background:transparent;color:#ff6b6b;cursor:pointer;font-size:14px;flex-shrink:0;">✕</button>
+                </div>
+            `;
+        }).join('');
+    }
+}
+
+// 全局播放和删除函数（供 onclick 调用）
+window._cvPlayVoice = function(url) {
+    if (!url) return;
+    const audio = new Audio(url);
+    audio.play().catch(() => showNotification('无法播放该语音，请检查URL', 'error'));
+};
+
+window._cvDeleteVoice = function(index) {
+    if (!confirm('确定删除此语音吗？')) return;
+    const voiceList = customVoice || [];
+    voiceList.splice(index, 1);
+    if (typeof throttledSaveData === 'function') throttledSaveData();
+    renderVoiceListItems();
+    showNotification('已删除', 'success');
+};
+
+function renderVoiceListItems() {
+    const container = document.getElementById('voice-list-container');
+    if (!container) return;
+    const voiceList = customVoice || [];
+    if (voiceList.length === 0) {
+        container.innerHTML = '<div style="color:var(--text-secondary);font-size:13px;opacity:0.7;padding:16px 0;text-align:center;">暂无语音，点击上方添加</div>';
         return;
     }
-
-    // 遍历每一条语音，生成卡片
-    itemsToRender.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = 'rl-card';
-
-        // 支持两种数据格式：字符串 或 { url, label, duration }
+    container.innerHTML = voiceList.map((item, index) => {
         const url = typeof item === 'string' ? item : (item.url || '');
         const label = typeof item === 'string' ? item : (item.label || '语音');
-
-        div.innerHTML = `
-            <div style="flex:1;min-width:0;display:flex;align-items:center;gap:10px;">
-                <span style="font-size:20px;">🎵</span>
-                <span style="font-size:13px;color:var(--text-primary);word-break:break-all;">${escapeHtml(label)}</span>
-                <span style="font-size:11px;color:var(--text-secondary);flex-shrink:0;">${item.duration || 0}"</span>
-            </div>
-            <div class="rl-card-actions">
-                <button class="rl-act-btn" data-action="play" title="播放">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M4 2l8 5-8 5V2z" fill="currentColor"/></svg>
-                </button>
-                <button class="rl-act-btn danger" data-action="delete" title="删除">
-                    ${ICONS.trash}
-                </button>
+        const duration = item.duration || 0;
+        return `
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid var(--border-color);">
+                <span style="font-size:16px;">🎵</span>
+                <span style="flex:1;font-size:13px;color:var(--text-primary);word-break:break-all;">${escapeHtml(label)}</span>
+                <span style="font-size:11px;color:var(--text-secondary);flex-shrink:0;">${duration}"</span>
+                <button onclick="window._cvPlayVoice('${url}')" style="padding:3px 10px;border:1px solid var(--border-color);border-radius:5px;background:transparent;cursor:pointer;font-size:11px;font-family:var(--font-family);flex-shrink:0;">▶</button>
+                <button onclick="window._cvDeleteVoice(${index})" style="padding:3px 6px;border:none;background:transparent;color:#ff6b6b;cursor:pointer;font-size:14px;flex-shrink:0;">✕</button>
             </div>
         `;
-
-        // 播放按钮：点击播放音频
-        div.querySelector('[data-action="play"]').onclick = (e) => {
-            e.stopPropagation();
-            if (url) {
-                const audio = new Audio(url);
-                audio.play().catch(() => showNotification('无法播放该语音', 'error'));
-            }
-        };
-
-        // 删除按钮：点击删除该语音
-        div.querySelector('[data-action="delete"]').onclick = (e) => {
-            e.stopPropagation();
-            if (confirm('删除此语音？')) {
-                customVoice.splice(index, 1);
-                throttledSaveData();
-                renderReplyLibrary(); // 刷新列表
-                showNotification('已删除', 'success');
-            }
-        };
-
-        list.appendChild(div);
-    });
+    }).join('');
 }
