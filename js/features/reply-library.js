@@ -2193,6 +2193,10 @@ function _showBatchAddDialog() {
                 const duration = parseInt(parts[2]) || 0;
                 customVoice.push({ url, label, duration });
                 newItems.push(val);
+            else if (currentSubTab === 'emojis') {
+                // 每行一个 Emoji，直接添加
+                customEmojis.push(val.trim());
+                newItems.push(val);
             }
             added++;
         });
@@ -2331,16 +2335,7 @@ function initReplyLibraryListeners() {
             if (currentSubTab === 'stickers') {
                 document.getElementById('sticker-file-input')?.click(); return;
             }
-            if (currentSubTab === 'emojis') {
-                const input = prompt('请输入要添加的 Emoji（支持组合表情）:');
-                if (input?.trim()) {
-                    customEmojis.push(input.trim());
-                    throttledSaveData(); renderReplyLibrary();
-                    showNotification('✓ Emoji 已添加', 'success');
-                }
-                return;
-            }
-            if(currentSubTab === 'custom' || currentSubTab === 'pokes' || currentSubTab === 'statuses' || currentSubTab === 'voice'){
+            if(currentSubTab === 'custom' || currentSubTab === 'pokes' || currentSubTab === 'statuses' || currentSubTab === 'voice' || currentSubTab === 'emojis'){
                 _showBatchAddDialog();
                 return;
             }
