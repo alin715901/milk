@@ -143,6 +143,29 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         })();
 
+        // 消息监听器：每隔3秒检查新消息（放在 setTimeout 外面）
+let lastMsgCount = 0;
+
+function checkNewMessages() {
+    if (typeof messages === 'undefined' || !messages) return;
+    const currentCount = messages.length;
+    if (currentCount > lastMsgCount && lastMsgCount > 0) {
+        // 有新消息！
+        const newMsg = messages[currentCount - 1];
+        if (Notification.permission === 'granted' && typeof showNotification === 'function') {
+            showNotification(
+                newMsg.sender || '新消息',
+                newMsg.content || '您收到一条新消息',
+                'info',
+                5000
+            );
+        }
+    }
+    lastMsgCount = currentCount;
+}
+
+// 每3秒检查一次
+setInterval(checkNewMessages, 3000);
         setTimeout(async () => {
             if ('Notification' in window && Notification.permission === 'default') {
                 try {
