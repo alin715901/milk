@@ -728,3 +728,72 @@
         }
     });
 })();
+
+// ─────────── 语速滑块实时联动 ───────────
+(function initSpeedSlider() {
+    const slider = document.getElementById('tts-speed');
+    const valueDisplay = document.getElementById('tts-speed-value');
+    const previewBtn = document.getElementById('tts-preview-btn');
+    if (!slider || !valueDisplay) return;
+
+    // 当前正在播放的音频元素（由 listeners-voice.js 维护）
+    // 我们通过 window._currentAudio 来访问它
+    let currentAudio = null;
+
+    // 监听滑块输入事件（拖拽时持续触发）
+    slider.addEventListener('input', function() {
+        const val = parseFloat(this.value);
+        valueDisplay.value = val.toFixed(2);
+        
+        // 如果有正在播放的音频，立即改变它的播放速度
+        if (window._currentAudio && !window._currentAudio.paused) {
+            try {
+                window._currentAudio.preservesPitch = true;
+                window._currentAudio.playbackRate = val;
+            } catch (e) {
+                // 静默处理
+            }
+        }
+    });
+
+    // 监听滑块变化事件（拖拽结束），保存到 localStorage
+    slider.addEventListener('change', function() {
+        const val = parseFloat(this.value);
+        // 读取当前配置，更新 speed 字段
+        try {
+            const cfg = JSON.parse(localStorage.getItem('voiceTtsConfig') || '{}');
+            cfg.speed = val;
+            localStorage.setItem('voiceTtsConfig', JSON.stringify(cfg));
+        } catch (e) {}
+    });
+
+    // 监听播放状态：当有音频开始播放时，记录引用并应用当前语速
+    // 利用 MutationObserver 或直接在 listeners-voice.js 里暴露 setter
+    // 这里我们用一个简单的方法：在 listeners-voice.js 里设置 window._currentAudio 时，
+    // 同时触发这里的更新
+    
+    // 提供一个外部可调用的函数，让 listeners-voice.js 在播放开始时通知我们
+    window._voiceTtsSpeedSlider = {
+        getCurrentSpeed: function() {
+            return parseFloat(slider.value) || 1.0;
+        },
+        applyToAudio: function(audioEl) {
+            if (!audioEl) return;
+            const speed = parseFloat(slider.value) || 1.0;
+            try {
+                audioEl.preservesPitch = true;
+                audioEl.playbackRate = speed;
+            } catch (e) {}
+        }
+    };
+
+    // 初始化时，从 localStorage 恢复语速到滑块
+    try {
+        const cfg = JSON.parse(localStorage.getItem('voiceTtsConfig') || '{}');
+        if (cfg.speed !== undefined && cfg.speed !== null) {
+            const s = Math.max(0.5, Math.min(2.0, Number(cfg.speed) || 1.0));
+            slider.value = s;
+            valueDisplay.value = s.toFixed(2);
+        }
+    } catch (e) {}
+})();
