@@ -1116,7 +1116,95 @@
                         </div>
                     </div>
 
+                    <!-- ── TTS 真实语音配置（自用功能） ── -->
+                    <p class="cs-group-label" style="margin-top:4px;">真实语音</p>
+                    <div class="cs-card">
+                        <div style="padding:12px 14px;">
+                            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;line-height:1.6;">
+                                配置后，点击语音条会先用 MiniMax 翻译，再生成真实语音播放。<br>
+                                中文字幕不变，声音按下方语言输出。
+                            </div>
+                            <div style="margin-bottom:8px;">
+                                <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">MiniMax API Key</div>
+                                <input type="password" id="tts-minimax-key" placeholder="eyJhbGciOiJ..."
+                                    style="width:100%;padding:8px 10px;border:1px solid var(--border-color);border-radius:8px;font-size:12px;background:var(--primary-bg);color:var(--text-primary);outline:none;font-family:var(--font-family);box-sizing:border-box;">
+                            </div>
+                            <div style="margin-bottom:8px;">
+                                <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">Group ID</div>
+                                <input type="text" id="tts-group-id" placeholder="填入控制台的 Group ID"
+                                    style="width:100%;padding:8px 10px;border:1px solid var(--border-color);border-radius:8px;font-size:12px;background:var(--primary-bg);color:var(--text-primary);outline:none;font-family:var(--font-family);box-sizing:border-box;">
+                            </div>
+                            <div style="margin-bottom:8px;">
+                                <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">模型</div>
+                                <input type="text" id="tts-model" placeholder="speech-02-turbo"
+                                    style="width:100%;padding:8px 10px;border:1px solid var(--border-color);border-radius:8px;font-size:12px;background:var(--primary-bg);color:var(--text-primary);outline:none;font-family:var(--font-family);box-sizing:border-box;">
+                            </div>
+                            <div style="margin-bottom:8px;">
+                                <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">Voice ID</div>
+                                <input type="text" id="tts-voice-id" placeholder="粘贴你的 Voice ID"
+                                    style="width:100%;padding:8px 10px;border:1px solid var(--border-color);border-radius:8px;font-size:12px;background:var(--primary-bg);color:var(--text-primary);outline:none;font-family:var(--font-family);box-sizing:border-box;">
+                            </div>
+                            <div style="margin-bottom:10px;">
+                                <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;">语音语言</div>
+                                <div style="display:flex;gap:6px;flex-wrap:wrap;" id="tts-lang-group">
+                                    <button onclick="window._setTtsLang && window._setTtsLang('RAW', this)" class="tts-lang-btn" data-lang="RAW" style="padding:5px 12px;border:1px solid var(--border-color);border-radius:20px;background:transparent;color:var(--text-secondary);font-size:12px;cursor:pointer;font-family:var(--font-family);">原文</button>
+                                    <button onclick="window._setTtsLang && window._setTtsLang('JA', this)" class="tts-lang-btn active" data-lang="JA" style="padding:5px 12px;border:1px solid var(--accent-color);border-radius:20px;background:rgba(var(--accent-color-rgb),0.1);color:var(--accent-color);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-family);">日语</button>
+                                    <button onclick="window._setTtsLang && window._setTtsLang('EN', this)" class="tts-lang-btn" data-lang="EN" style="padding:5px 12px;border:1px solid var(--border-color);border-radius:20px;background:transparent;color:var(--text-secondary);font-size:12px;cursor:pointer;font-family:var(--font-family);">英语</button>
+                                    <button onclick="window._setTtsLang && window._setTtsLang('KO', this)" class="tts-lang-btn" data-lang="KO" style="padding:5px 12px;border:1px solid var(--border-color);border-radius:20px;background:transparent;color:var(--text-secondary);font-size:12px;cursor:pointer;font-family:var(--font-family);">韩语</button>
+                                    <button onclick="window._setTtsLang && window._setTtsLang('DE', this)" class="tts-lang-btn" data-lang="DE" style="padding:5px 12px;border:1px solid var(--border-color);border-radius:20px;background:transparent;color:var(--text-secondary);font-size:12px;cursor:pointer;font-family:var(--font-family);">德语</button>
+                                </div>
+                            </div>
 
+                            <div style="margin-bottom:10px;">
+                                <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                                    <span style="display:flex;align-items:center;gap:2px;">
+                                        <span>语速</span>
+                                        <input type="number" id="tts-speed-value" min="0.5" max="2" step="0.01" value="1.00"
+                                            style="width:50px;padding:2px 4px;margin-left:6px;border:1px solid var(--border-color);border-radius:6px;font-size:12px;font-weight:600;background:var(--primary-bg);color:var(--text-primary);outline:none;font-family:var(--font-family);text-align:right;-moz-appearance:textfield;">
+                                        <span style="font-weight:400;opacity:0.7;">×</span>
+                                    </span>
+                                    <button type="button" id="tts-preview-btn" onclick="window._previewTts && window._previewTts()"
+                                        style="padding:4px 10px;border:1px solid var(--accent-color);border-radius:14px;background:rgba(var(--accent-color-rgb),0.08);color:var(--accent-color);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-family);display:inline-flex;align-items:center;gap:4px;">
+                                        <i class="fas fa-play" style="font-size:9px;"></i><span id="tts-preview-label">试听</span>
+                                    </button>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <span style="font-size:10px;color:var(--text-secondary);opacity:0.6;">慢</span>
+                                    <input type="range" id="tts-speed" min="0.5" max="2" step="0.01" value="1"
+                                        style="flex:1;accent-color:var(--accent-color);cursor:pointer;">
+                                    <span style="font-size:10px;color:var(--text-secondary);opacity:0.6;">快</span>
+                                </div>
+                            </div>
+
+                            <!-- 翻译设置：选原文时隐藏 -->
+                            <div id="tts-translate-options" style="margin-bottom:10px;">
+                                <div style="margin-bottom:8px;">
+                                    <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;">角色性别</div>
+                                    <div style="display:flex;gap:6px;">
+                                        <button onclick="window._setTtsGender && window._setTtsGender('male', this)" class="tts-gender-btn active" data-gender="male" style="padding:5px 16px;border:1px solid var(--accent-color);border-radius:20px;background:rgba(var(--accent-color-rgb),0.1);color:var(--accent-color);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-family);">男</button>
+                                        <button onclick="window._setTtsGender && window._setTtsGender('female', this)" class="tts-gender-btn" data-gender="female" style="padding:5px 16px;border:1px solid var(--border-color);border-radius:20px;background:transparent;color:var(--text-secondary);font-size:12px;cursor:pointer;font-family:var(--font-family);">女</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">说话风格 <span style="font-weight:400;opacity:0.7;">（50字以内，选填）</span></div>
+                                    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;" id="tts-style-presets">
+                                        <button onclick="window._setTtsStylePreset && window._setTtsStylePreset(this)" data-style="冷漠傲娇，嘴硬心软，命令式语气，少用感叹词" style="padding:3px 10px;border:1px solid var(--border-color);border-radius:12px;background:transparent;color:var(--text-secondary);font-size:11px;cursor:pointer;font-family:var(--font-family);">傲娇冷漠</button>
+                                        <button onclick="window._setTtsStylePreset && window._setTtsStylePreset(this)" data-style="温柔体贴，说话轻柔，喜欢用关心的语气" style="padding:3px 10px;border:1px solid var(--border-color);border-radius:12px;background:transparent;color:var(--text-secondary);font-size:11px;cursor:pointer;font-family:var(--font-family);">温柔体贴</button>
+                                        <button onclick="window._setTtsStylePreset && window._setTtsStylePreset(this)" data-style="活泼开朗，语气轻快，喜欢用语气词和感叹" style="padding:3px 10px;border:1px solid var(--border-color);border-radius:12px;background:transparent;color:var(--text-secondary);font-size:11px;cursor:pointer;font-family:var(--font-family);">活泼开朗</button>
+                                        <button onclick="window._setTtsStylePreset && window._setTtsStylePreset(this)" data-style="高冷霸道，惜字如金，语气强势直接" style="padding:3px 10px;border:1px solid var(--border-color);border-radius:12px;background:transparent;color:var(--text-secondary);font-size:11px;cursor:pointer;font-family:var(--font-family);">高冷霸道</button>
+                                    </div>
+                                    <textarea id="tts-style-text" maxlength="50" placeholder="描述角色说话风格，例如：冷漠傲娇，嘴硬心软，命令式语气" style="width:100%;padding:8px 10px;border:1px solid var(--border-color);border-radius:8px;font-size:12px;background:var(--primary-bg);color:var(--text-primary);outline:none;font-family:var(--font-family);box-sizing:border-box;resize:none;height:60px;line-height:1.5;"></textarea>
+                                    <div style="font-size:10px;color:var(--text-secondary);text-align:right;margin-top:2px;"><span id="tts-style-count">0</span>/50</div>
+                                </div>
+                            </div>
+                            <button id="tts-save-btn" onclick="window._saveTtsConfig && window._saveTtsConfig()" disabled
+                                style="width:100%;padding:9px;border:none;border-radius:8px;background:var(--border-color);color:var(--text-secondary);font-size:13px;font-weight:600;cursor:not-allowed;font-family:var(--font-family);opacity:0.65;transition:all 0.2s ease;">
+                                保存配置
+                            </button>
+                            <div id="tts-status" style="margin-top:8px;font-size:11px;text-align:center;color:var(--text-secondary);min-height:16px;"></div>
+                        </div>
+                    </div>
+                    
                     <p class="cs-group-label" style="margin-top:4px;">时间戳</p>
                     <div class="cs-card">
                         <div class="cs-time-grid" id="time-format-options">
@@ -2244,6 +2332,11 @@
     <script src="js/onboarding.js"></script> 
     <script src="js/listeners.js"></script> 
     <script src="js/listeners-voice.js"></script>
+    <script src="js/cloud-sync.js"></script>
+    <script src="js/cloud-sync-engine.js"></script>
+    <script src="js/cloud-media.js"></script>
+    <script src="js/cloud-media-migration.js"></script>
+    <script src="js/cloud-sync-ui.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
