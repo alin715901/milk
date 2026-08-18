@@ -1857,11 +1857,19 @@
                 <div class="reply-tabs" id="cr-sub-tabs">
                     <button class="reply-tab-btn active" data-id="custom" data-mode="text">主字卡</button>
                     <button class="reply-tab-btn" data-id="emoji" data-mode="emoji">Emoji</button>
-                    <button class="reply-tab-btn" data-id="sticker" data-mode="image">表情库</button>
-                    <button class="reply-tab-btn" data-id="voice" data-mode="voice">语音</button>  
+                    <button class="reply-tab-btn" data-id="sticker" data-mode="image">表情库</button>  
                 </div>
             
-
+                <!-- ★★★ 自定义语音板块 ★★★ -->
+                <div id="custom-voice-section" style="padding:10px 16px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;border-bottom:1px solid var(--border-color);padding-bottom:10px;">
+                        <span style="font-size:14px;font-weight:600;color:var(--text-primary);">🎵 语音管理</span>
+                        <button id="custom-voice-add-btn" style="padding:5px 14px;border:none;border-radius:8px;background:var(--accent-color);color:#fff;cursor:pointer;font-size:12px;font-family:var(--font-family);">+ 添加</button>
+                    </div>
+                    <div id="custom-voice-list"></div>
+                </div>
+            </div>
+                
                 <div class="content-list-area" id="custom-replies-list">
                 </div>
 
