@@ -2333,10 +2333,10 @@ function initReplyLibraryListeners() {
     const addBtn = document.getElementById('add-custom-reply');
     if (addBtn) {
         addBtn.addEventListener('click', () => {
-            if (currentSubTab === 'stickers') {
+            if (currentSubTab === 'sticker' || currentSubTab === 'stickers') {
                 document.getElementById('sticker-file-input')?.click(); return;
             }
-            if(currentSubTab === 'custom' || currentSubTab === 'pokes' || currentSubTab === 'statuses' || currentSubTab === 'voice' || currentSubTab === 'emojis'){
+            if(currentSubTab === 'custom' || currentSubTab === 'pokes' || currentSubTab === 'statuses' || currentSubTab === 'voice' || currentSubTab === 'emojis'|| currentSubTab === 'emoji' ){
                 _showBatchAddDialog();
                 return;
             }
