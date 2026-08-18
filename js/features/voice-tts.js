@@ -797,3 +797,46 @@
         }
     } catch (e) {}
 })();
+
+// ─────────── 性别切换按钮绑定 ───────────
+(function initGenderButtons() {
+    const btns = document.querySelectorAll('.tts-gender-btn');
+    if (!btns.length) return;
+
+    const savedGender = localStorage.getItem('tts_gender') || 'male';
+
+    function setGender(gender, btn) {
+        btns.forEach(function(b) {
+            b.classList.remove('active');
+            b.style.border = '1px solid var(--border-color)';
+            b.style.background = 'transparent';
+            b.style.color = 'var(--text-secondary)';
+        });
+        if (btn) {
+            btn.classList.add('active');
+            btn.style.border = '1px solid var(--accent-color)';
+            btn.style.background = 'rgba(var(--accent-color-rgb), 0.1)';
+            btn.style.color = 'var(--accent-color)';
+        }
+        localStorage.setItem('tts_gender', gender);
+        // 同步更新配置
+        try {
+            const cfg = JSON.parse(localStorage.getItem('voiceTtsConfig') || '{}');
+            cfg.gender = gender;
+            localStorage.setItem('voiceTtsConfig', JSON.stringify(cfg));
+        } catch(e) {}
+    }
+
+    btns.forEach(function(btn) {
+        const gender = btn.getAttribute('data-gender');
+        if (!gender) return;
+        btn.addEventListener('click', function() {
+            setGender(gender, this);
+        });
+        if (gender === savedGender) {
+            setGender(gender, btn);
+        }
+    });
+
+    window._setTtsGender = setGender;
+})();
