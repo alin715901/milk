@@ -2185,6 +2185,15 @@ function _showBatchAddDialog() {
             else if (currentSubTab === 'pokes') { customPokes.push(val); newItems.push(val); }
             else if (currentSubTab === 'statuses') { customStatuses.push(val); newItems.push(val); }
             else if (currentSubTab === 'mottos') customMottos.push(val);
+            else if (currentSubTab === 'voice') {
+                const parts = val.split('|').map(s => s.trim());
+                const url = parts[0];
+                if (!url) return;
+                const label = parts[1] || '语音';
+                const duration = parseInt(parts[2]) || 0;
+                customVoice.push({ url, label, duration });
+                newItems.push(val);
+            }
             added++;
         });
         if (_selectedGroupIdx >= 0 && newItems.length > 0 && groups) {
@@ -2331,8 +2340,9 @@ function initReplyLibraryListeners() {
                 }
                 return;
             }
-            if (currentSubTab === 'custom' || currentSubTab === 'pokes' || currentSubTab === 'statuses') {
-                _showBatchAddDialog(); return;
+            if(currentSubTab === 'custom' || currentSubTab === 'pokes' || currentSubTab === 'statuses' || currentSubTab === 'voice'){
+                showBatchAddDialog();
+                return;
             }
             let input;
             if (currentSubTab === 'intros') {
@@ -2566,33 +2576,10 @@ function _renderVoiceTab(list, itemsToRender) {
         showNotification('✓ 语音已添加', 'success');
     });
     
-    // 绑定批量添加按钮
+    // 绑定批量添加按钮 - 复用字卡库的批量添加界面
     document.getElementById('voice-add-batch-btn').addEventListener('click', function() {
-        const input = prompt(
-            '请输入多条语音，每行一条，格式：\n' +
-            'URL | 名称 | 时长(秒)\n\n' +
-            '示例：\n' +
-            'https://example.com/1.mp3 | 早安 | 3\n' +
-            'https://example.com/2.mp3 | 晚安 | 5\n\n' +
-            '（名称和时长可选，用 | 分隔）'
-        );
-        if (!input || !input.trim()) return;
-        
-        const lines = input.split('\n').filter(line => line.trim());
-        let added = 0;
-        lines.forEach(line => {
-            const parts = line.split('|').map(s => s.trim());
-            const url = parts[0];
-            if (!url) return;
-            const label = parts[1] || '语音';
-            const duration = parseInt(parts[2]) || 0;
-            const voiceList = customVoice || [];
-            voiceList.push({ url, label, duration });
-            added++;
-        });
-        if (typeof throttledSaveData === 'function') throttledSaveData();
-        renderVoiceListItems();
-        showNotification(`✓ 成功添加 ${added} 条语音`, 'success');
+        currentSubTab = 'voice';
+        _showBatchAddDialog();
     });
     
     function renderVoiceListItems() {
