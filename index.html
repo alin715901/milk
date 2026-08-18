@@ -1857,18 +1857,9 @@
                 <div class="reply-tabs" id="cr-sub-tabs">
                     <button class="reply-tab-btn active" data-id="custom" data-mode="text">主字卡</button>
                     <button class="reply-tab-btn" data-id="emoji" data-mode="emoji">Emoji</button>
-                    <button class="reply-tab-btn" data-id="sticker" data-mode="image">表情库</button>  
+                    <button class="reply-tab-btn" data-id="sticker" data-mode="image">表情库</button> 
+                    <button class="reply-tab-btn" data-id="voice" data-mode="voice">语音</button>
                 </div>
-            
-                <!-- ★★★ 自定义语音板块 ★★★ -->
-                <div id="custom-voice-section" style="padding:10px 16px;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;border-bottom:1px solid var(--border-color);padding-bottom:10px;">
-                        <span style="font-size:14px;font-weight:600;color:var(--text-primary);">🎵 语音管理</span>
-                        <button id="custom-voice-add-btn" style="padding:5px 14px;border:none;border-radius:8px;background:var(--accent-color);color:#fff;cursor:pointer;font-size:12px;font-family:var(--font-family);">+ 添加</button>
-                    </div>
-                    <div id="custom-voice-list"></div>
-                </div>
-            </div>
                 
                 <div class="content-list-area" id="custom-replies-list">
                 </div>
@@ -2352,114 +2343,148 @@
     <script src="js/cloud-sync-ui.js"></script>
     <script src="js/app.js"></script>
 <script>
-// ─── 独立的语音管理模块（不依赖 reply-library.js） ───
+// ─── 语音标签页（点击“语音”标签时显示） ───
 (function() {
-    // 确保 customVoice 数据存在
     if (!localStorage.getItem('customVoice')) {
         localStorage.setItem('customVoice', JSON.stringify([]));
     }
 
-    function getVoiceList() {
-        try {
-            return JSON.parse(localStorage.getItem('customVoice') || '[]');
-        } catch {
-            return [];
-        }
+    function getList() {
+        try { return JSON.parse(localStorage.getItem('customVoice') || '[]'); } catch { return []; }
     }
 
-    function saveVoiceList(list) {
+    function saveList(list) {
         localStorage.setItem('customVoice', JSON.stringify(list));
     }
 
-    function renderVoiceList() {
-        const container = document.getElementById('voice-list-container');
-        if (!container) return;
-        const list = getVoiceList();
-        if (list.length === 0) {
-            container.innerHTML = '<div style="color:var(--text-secondary);font-size:13px;opacity:0.7;padding:20px 0;">暂无语音，点击上方添加</div>';
+    function renderVoiceTab() {
+        const list = document.getElementById('custom-replies-list');
+        if (!list) return;
+        const voiceList = getList();
+        if (voiceList.length === 0) {
+            list.innerHTML = `
+                <div style="padding:40px 20px;text-align:center;color:var(--text-secondary);">
+                    <div style="font-size:40px;margin-bottom:12px;">🎵</div>
+                    <div style="font-size:14px;">暂无语音</div>
+                    <div style="font-size:12px;opacity:0.6;margin-top:4px;">点击下方「+ 新增」添加语音</div>
+                </div>
+            `;
             return;
         }
-        container.innerHTML = list.map((item, index) => `
-            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border-color);">
-                <span style="font-size:18px;">🎵</span>
-                <span style="flex:1;font-size:13px;color:var(--text-primary);word-break:break-all;">${escapeHtml(item.label || '未命名')}</span>
-                <span style="font-size:11px;color:var(--text-secondary);">${item.duration || 0}"</span>
-                <button onclick="window._playVoice('${item.url}')" style="padding:4px 12px;border:1px solid var(--border-color);border-radius:6px;background:transparent;cursor:pointer;font-size:12px;font-family:var(--font-family);">▶ 播放</button>
-                <button onclick="window._deleteVoice(${index})" style="padding:4px 8px;border:none;background:transparent;color:#ff6b6b;cursor:pointer;font-size:14px;">✕</button>
+        list.innerHTML = `
+            <div style="padding:12px 16px;">
+                ${voiceList.map((item, index) => `
+                    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border-color);">
+                        <span style="font-size:18px;">🎵</span>
+                        <span style="flex:1;font-size:13px;color:var(--text-primary);word-break:break-all;">${escapeHtml(item.label || '未命名')}</span>
+                        <span style="font-size:11px;color:var(--text-secondary);flex-shrink:0;">${item.duration || 0}"</span>
+                        <button onclick="window._cvPlay('${item.url}')" style="padding:3px 10px;border:1px solid var(--border-color);border-radius:5px;background:transparent;cursor:pointer;font-size:11px;">▶</button>
+                        <button onclick="window._cvDelete(${index})" style="padding:3px 6px;border:none;background:transparent;color:#ff6b6b;cursor:pointer;font-size:14px;">✕</button>
+                    </div>
+                `).join('')}
             </div>
-        `).join('');
+        `;
     }
 
-    window._playVoice = function(url) {
+    window._cvPlay = function(url) {
         if (!url) return;
         const audio = new Audio(url);
-        audio.play().catch(() => alert('无法播放该语音，请检查URL是否有效'));
+        audio.play().catch(() => alert('无法播放，请检查URL'));
     };
 
-    window._deleteVoice = function(index) {
-        if (!confirm('确定删除此语音吗？')) return;
-        const list = getVoiceList();
+    window._cvDelete = function(index) {
+        if (!confirm('删除此语音？')) return;
+        const list = getList();
         list.splice(index, 1);
-        saveVoiceList(list);
-        renderVoiceList();
+        saveList(list);
+        renderVoiceTab();
     };
 
-    window._addVoice = function() {
-        const url = prompt('请输入语音文件的URL（如 https://xxx.mp3）:');
+    window._cvAdd = function() {
+        const url = prompt('请输入语音文件URL（如 https://xxx.mp3）:');
         if (!url || !url.trim()) return;
-        const label = prompt('请输入语音名称（选填）:') || '语音';
-        const duration = prompt('请输入时长（秒，选填）:') || 0;
-        const list = getVoiceList();
+        const label = prompt('请输入名称（选填）:') || '语音';
+        const duration = prompt('时长（秒，选填）:') || 0;
+        const list = getList();
         list.push({ url: url.trim(), label: label.trim(), duration: Number(duration) || 0 });
-        saveVoiceList(list);
-        renderVoiceList();
+        saveList(list);
+        renderVoiceTab();
     };
 
     function escapeHtml(s) {
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
-    // 监听回复库弹窗打开，给“语音”标签绑定事件
-    function initVoiceTab() {
-        const modal = document.getElementById('custom-replies-modal');
-        if (!modal) return;
+    // ─── 劫持“语音”标签的点击 ───
+    function bindVoiceTab() {
+        const voiceTab = document.querySelector('#cr-sub-tabs .reply-tab-btn[data-id="voice"]');
+        if (!voiceTab) return;
+        if (voiceTab.dataset.bound) return;
+        voiceTab.dataset.bound = '1';
 
-        const observer = new MutationObserver(function() {
-            // 弹窗显示时才绑定
-            if (modal.style.display === 'flex' || modal.style.display === 'block') {
-                const voiceTab = document.querySelector('#cr-sub-tabs .reply-tab-btn[data-id="voice"]');
-                if (!voiceTab) return;
-                // 避免重复绑定
-                if (voiceTab.dataset.voiceBound === '1') return;
-                voiceTab.dataset.voiceBound = '1';
-
-                voiceTab.addEventListener('click', function() {
-                    const list = document.getElementById('custom-replies-list');
-                    if (!list) return;
-                    // 渲染语音管理界面
-                    list.innerHTML = `
-                        <div style="padding:16px 20px;">
-                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                                <span style="font-size:14px;font-weight:600;color:var(--text-primary);">🎵 语音管理</span>
-                                <button id="add-voice-btn" style="padding:6px 16px;border:none;border-radius:8px;background:var(--accent-color);color:#fff;cursor:pointer;font-size:13px;font-family:var(--font-family);">+ 添加</button>
-                            </div>
-                            <div id="voice-list-container"></div>
-                        </div>
-                    `;
-                    renderVoiceList();
-                    document.getElementById('add-voice-btn').addEventListener('click', window._addVoice);
-                });
-            }
+        voiceTab.addEventListener('click', function(e) {
+            e.stopPropagation();
+            // 让其他标签取消激活
+            document.querySelectorAll('#cr-sub-tabs .reply-tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            // 显示语音列表
+            renderVoiceTab();
         });
-
-        observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
     }
 
-    // 页面加载完成后初始化
+    // ─── 劫持“+ 新增”按钮 ───
+    function bindAddBtn() {
+        const addBtn = document.getElementById('add-custom-reply');
+        if (!addBtn) return;
+        if (addBtn.dataset.voiceBound) return;
+        addBtn.dataset.voiceBound = '1';
+
+        // 保留原有逻辑，但如果是“语音”标签页，则调用语音添加
+        const originalClick = addBtn.onclick;
+        addBtn.addEventListener('click', function(e) {
+            const isVoiceTab = document.querySelector('#cr-sub-tabs .reply-tab-btn[data-id="voice"].active');
+            if (isVoiceTab) {
+                e.stopPropagation();
+                window._cvAdd();
+            }
+        });
+    }
+
+    // ─── 初始化 ───
+    function init() {
+        bindVoiceTab();
+        bindAddBtn();
+        // 如果当前默认打开的是语音标签，渲染语音列表
+        setTimeout(function() {
+            const activeTab = document.querySelector('#cr-sub-tabs .reply-tab-btn.active');
+            if (activeTab && activeTab.dataset.id === 'voice') {
+                renderVoiceTab();
+            }
+        }, 300);
+    }
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initVoiceTab);
+        document.addEventListener('DOMContentLoaded', init);
     } else {
-        initVoiceTab();
+        init();
+    }
+
+    // 每次打开回复库弹窗时重新绑定
+    const modal = document.getElementById('custom-replies-modal');
+    if (modal) {
+        const observer = new MutationObserver(function() {
+            if (modal.style.display === 'flex' || modal.style.display === 'block') {
+                setTimeout(function() {
+                    bindVoiceTab();
+                    bindAddBtn();
+                    const activeTab = document.querySelector('#cr-sub-tabs .reply-tab-btn.active');
+                    if (activeTab && activeTab.dataset.id === 'voice') {
+                        renderVoiceTab();
+                    }
+                }, 200);
+            }
+        });
+        observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
     }
 })();
 </script>
