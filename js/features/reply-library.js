@@ -2,6 +2,7 @@ if (typeof customReplyGroups === 'undefined') window.customReplyGroups = [];
 if (typeof replyGroupsEnabled === 'undefined') window.replyGroupsEnabled = false;
 if (typeof customPokeGroups === 'undefined') window.customPokeGroups = [];
 if (typeof customStatusGroups === 'undefined') window.customStatusGroups = [];
+if (typeof customVoice === 'undefined') window.customVoice = [];
 
 // 根据当前 tab 返回对应的分组上下文 {groups, items, itemLabel}
 function _getGroupCtx(tab) {
@@ -157,6 +158,7 @@ function _renderListContentOnly() {
 
     if (renderType === 'emoji') { _renderEmojiTab(list, itemsToRender); return; }
     if (renderType === 'image') { _renderStickerTab(list, itemsToRender); return; }
+    if (renderType === 'voice') {_renderVoiceTab(list, itemsToRender);return;}
 
     const q = _searchQuery.toLowerCase().trim();
     const filtered = q ? itemsToRender.filter(item => item.toLowerCase().includes(q)) : itemsToRender;
@@ -235,6 +237,9 @@ function renderReplyLibrary() {
         } else if (currentSubTab === 'stickers') {
             itemsToRender = stickerLibrary;
             renderType = 'image';
+        } else if (currentSubTab === 'voice') {   // ← 新增
+            itemsToRender = customVoice || [];
+            renderType = 'voice';
         }
     } else if (currentMajorTab === 'atmosphere') {
         if (currentSubTab === 'pokes') itemsToRender = customPokes;
@@ -245,6 +250,7 @@ function renderReplyLibrary() {
 
     if (renderType === 'emoji') { _renderEmojiTab(list, itemsToRender); return; }
     if (renderType === 'image') { _renderStickerTab(list, itemsToRender); return; }
+    if (renderType === 'voice') { _renderVoiceTab(list, itemsToRender); return; } 
 
     const q = _searchQuery.toLowerCase().trim();
     let filtered = q ? itemsToRender.filter(item => item.toLowerCase().includes(q)) : itemsToRender;
@@ -2524,4 +2530,60 @@ function applyAllAvatarFrames() {
     if (settings.avatarCornerRadius) {
         document.documentElement.style.setProperty('--avatar-corner-radius', settings.avatarCornerRadius + 'px');
     }
+}
+
+function _renderVoiceTab(list, itemsToRender) {
+    // 如果语音列表为空，显示"暂无语音"
+    if (!itemsToRender || itemsToRender.length === 0) {
+        list.innerHTML = renderEmptyState('暂无语音');
+        return;
+    }
+
+    // 遍历每一条语音，生成卡片
+    itemsToRender.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'rl-card';
+
+        // 支持两种数据格式：字符串 或 { url, label, duration }
+        const url = typeof item === 'string' ? item : (item.url || '');
+        const label = typeof item === 'string' ? item : (item.label || '语音');
+
+        div.innerHTML = `
+            <div style="flex:1;min-width:0;display:flex;align-items:center;gap:10px;">
+                <span style="font-size:20px;">🎵</span>
+                <span style="font-size:13px;color:var(--text-primary);word-break:break-all;">${escapeHtml(label)}</span>
+                <span style="font-size:11px;color:var(--text-secondary);flex-shrink:0;">${item.duration || 0}"</span>
+            </div>
+            <div class="rl-card-actions">
+                <button class="rl-act-btn" data-action="play" title="播放">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M4 2l8 5-8 5V2z" fill="currentColor"/></svg>
+                </button>
+                <button class="rl-act-btn danger" data-action="delete" title="删除">
+                    ${ICONS.trash}
+                </button>
+            </div>
+        `;
+
+        // 播放按钮：点击播放音频
+        div.querySelector('[data-action="play"]').onclick = (e) => {
+            e.stopPropagation();
+            if (url) {
+                const audio = new Audio(url);
+                audio.play().catch(() => showNotification('无法播放该语音', 'error'));
+            }
+        };
+
+        // 删除按钮：点击删除该语音
+        div.querySelector('[data-action="delete"]').onclick = (e) => {
+            e.stopPropagation();
+            if (confirm('删除此语音？')) {
+                customVoice.splice(index, 1);
+                throttledSaveData();
+                renderReplyLibrary(); // 刷新列表
+                showNotification('已删除', 'success');
+            }
+        };
+
+        list.appendChild(div);
+    });
 }
