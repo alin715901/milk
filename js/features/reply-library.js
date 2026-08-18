@@ -2193,6 +2193,7 @@ function _showBatchAddDialog() {
                 const duration = parseInt(parts[2]) || 0;
                 customVoice.push({ url, label, duration });
                 newItems.push(val);
+            }
             else if (currentSubTab === 'emojis') {
                 // 每行一个 Emoji，直接添加
                 customEmojis.push(val.trim());
