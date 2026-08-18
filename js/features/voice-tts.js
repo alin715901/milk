@@ -683,6 +683,18 @@
 
 })();
 
+// 强制启用保存按钮
+setTimeout(function() {
+    const btn = document.getElementById('tts-save-btn');
+    if (btn) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        btn.style.background = 'var(--accent-color)';
+        btn.style.color = '#fff';
+    }
+}, 500);
+
 // ─────────── 初始化：绑定语言切换按钮 ───────────
 (function initTtsLangButtons() {
     const btns = document.querySelectorAll('.tts-lang-btn');
