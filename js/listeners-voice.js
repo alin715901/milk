@@ -264,6 +264,12 @@
                             window.voiceTTS.applyPlaybackSettings(audio);
                         }
                         _currentAudio = audio;
+                        // ★ 新增：暴露到全局，让语速滑块能访问到它
+                        window._currentAudio = audio;
+                        // ★ 新增：如果滑块已加载，立即应用当前滑块语速
+                        if (window._voiceTtsSpeedSlider && window._voiceTtsSpeedSlider.applyToAudio) {
+                        window._voiceTtsSpeedSlider.applyToAudio(audio);
+                        }
                         audio.onended = () => {
                             bubble.classList.remove('playing');
                             if (currentBubble === bubble) currentBubble = null;
