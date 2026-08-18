@@ -683,6 +683,18 @@
 
 })();
 
+// 强制启用保存按钮
+setTimeout(function() {
+    const btn = document.getElementById('tts-save-btn');
+    if (btn) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        btn.style.background = 'var(--accent-color)';
+        btn.style.color = '#fff';
+    }
+}, 500);
+
 // ─────────── 初始化：绑定语言切换按钮 ───────────
 (function initTtsLangButtons() {
     const btns = document.querySelectorAll('.tts-lang-btn');
@@ -841,72 +853,22 @@
     window._setTtsGender = setGender;
 })();
 
-// 强制保存按钮永远可点击，点击时根据填没填决定是保存还是清空
-(function fixSaveButton() {
-    const btn = document.getElementById('tts-save-btn');
-    if (!btn) return;
-
-    // 1. 移除所有禁用状态（覆盖掉原代码的限制）
-    btn.disabled = false;
-    btn.removeAttribute('disabled');
-    btn.style.opacity = '1';
-    btn.style.cursor = 'pointer';
-    btn.style.background = 'var(--accent-color)';
-    btn.style.color = '#fff';
-
-    // 2. 监听点击事件
-    btn.addEventListener('click', function(e) {
-        // 阻止原有事件（如果有）
-        e.stopPropagation();
-        
-        const key = document.getElementById('tts-minimax-key');
-        const gid = document.getElementById('tts-group-id');
-        const vid = document.getElementById('tts-voice-id');
-        
-        const keyVal = key ? key.value.trim() : '';
-        const gidVal = gid ? gid.value.trim() : '';
-        const vidVal = vid ? vid.value.trim() : '';
-
-        // 判断：是否三个字段都填了
-        if (keyVal && gidVal && vidVal) {
-            // 有内容 → 保存配置
-            const model = document.getElementById('tts-model');
-            const lang = localStorage.getItem('tts_lang') || 'RAW';
-            const gender = localStorage.getItem('tts_gender') || 'male';
-            const speed = parseFloat(document.getElementById('tts-speed')?.value) || 1.0;
-            const styleText = document.getElementById('tts-style-text')?.value || '';
-            
-            if (window.voiceTTS && window.voiceTTS.saveTtsConfig) {
-                window.voiceTTS.saveTtsConfig(
-                    keyVal, gidVal, vidVal,
-                    model ? model.value : 'speech-02-turbo',
-                    lang, gender, styleText, speed
-                );
-                if (typeof showNotification === 'function') {
-                    showNotification('✅ 语音配置已保存', 'success');
-                } else {
-                    alert('✅ 语音配置已保存');
-                }
-            }
-        } else {
-            // 有空字段 → 清空配置（恢复未配置状态）
-            if (window.voiceTTS && window.voiceTTS.saveTtsConfig) {
-                window.voiceTTS.saveTtsConfig('', '', '', 'speech-02-turbo', 'RAW', 'male', '', 1.0);
-                if (typeof showNotification === 'function') {
-                    showNotification('🔄 已清空语音配置', 'info');
-                } else {
-                    alert('🔄 已清空语音配置');
-                }
-            }
-        }
+// 说话风格预设按钮
+window._setTtsStylePreset = function(btn) {
+    const style = btn.getAttribute('data-style');
+    const textarea = document.getElementById('tts-style-text');
+    if (textarea) {
+        textarea.value = style;
+        // 触发 input 事件，让计数器更新
+        textarea.dispatchEvent(new Event('input'));
+    }
+    // 高亮当前选中的按钮
+    document.querySelectorAll('#tts-style-presets button').forEach(function(b) {
+        b.style.border = '1px solid var(--border-color)';
+        b.style.background = 'transparent';
+        b.style.color = 'var(--text-secondary)';
     });
-
-    // 3. 用 MutationObserver 监控，防止被其他代码重新禁用
-    const observer = new MutationObserver(function() {
-        if (btn.disabled) {
-            btn.disabled = false;
-            btn.removeAttribute('disabled');
-        }
-    });
-    observer.observe(btn, { attributes: true, attributeFilter: ['disabled'] });
-})();
+    btn.style.border = '1px solid var(--accent-color)';
+    btn.style.background = 'rgba(var(--accent-color-rgb), 0.1)';
+    btn.style.color = 'var(--accent-color)';
+};
