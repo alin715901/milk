@@ -2341,7 +2341,7 @@ function initReplyLibraryListeners() {
                 return;
             }
             if(currentSubTab === 'custom' || currentSubTab === 'pokes' || currentSubTab === 'statuses' || currentSubTab === 'voice'){
-                showBatchAddDialog();
+                _showBatchAddDialog();
                 return;
             }
             let input;
