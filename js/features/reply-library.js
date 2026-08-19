@@ -2533,7 +2533,12 @@ function _renderVoiceTab(list) {
     if (!list) list = document.getElementById('custom-replies-list');
     if (!list) return;
     
-    var voiceList = customVoice || [];
+    var voiceList = window.voiceList || [];
+    // 如果没有 voiceList，从 customVoice 读取
+    if (voiceList.length === 0 && typeof customVoice !== 'undefined' && customVoice.length > 0) {
+        voiceList = customVoice;
+        window.voiceList = customVoice;
+    }
     
     if (voiceList.length === 0) {
         list.innerHTML = renderEmptyState('暂无语音，点击下方 + 新增');
@@ -2632,10 +2637,23 @@ function _showVoiceAddDialog() {
             reader.onload = function(e) {
                 alert('4. 文件读取完成');
                 var base64 = e.target.result;
-                customVoice.push({ url: base64, label: label, duration: duration });
-                alert('5. push 完成，当前数量: ' + customVoice.length);
+    
+                // 确保 voiceList 存在
+                if (typeof window.voiceList === 'undefined') {
+                    window.voiceList = [];
+                    alert('voiceList 已初始化');
+                }
+    
+                window.voiceList.push({ url: base64, label: label, duration: duration });
+                alert('5. push 完成，当前数量: ' + window.voiceList.length);
+    
+                // 同时同步到 customVoice
+                if (typeof customVoice !== 'undefined') {
+                    customVoice.push({ url: base64, label: label, duration: duration });
+                }
+    
                 if (typeof throttledSaveData === 'function') throttledSaveData();
-                _renderVoiceTab(document.getElementById('custom-replies-list'));
+                // _renderVoiceTab(document.getElementById('custom-replies-list'));
                 alert('6. 渲染完成');
                 overlay.remove();
                 showNotification('✓ 语音已添加', 'success');
@@ -2651,7 +2669,13 @@ function _showVoiceAddDialog() {
         }
         
         alert('3. 使用 URL 添加');
-        customVoice.push({ url: url, label: label, duration: duration });
+        if (typeof window.voiceList === 'undefined') {
+            window.voiceList = [];
+        }
+        window.voiceList.push({ url: url, label: label, duration: duration });
+        if (typeof customVoice !== 'undefined') {
+            customVoice.push({ url: url, label: label, duration: duration });
+        }
         alert('4. URL push 完成，当前数量: ' + customVoice.length);
         if (typeof throttledSaveData === 'function') throttledSaveData();
         _renderVoiceTab(document.getElementById('custom-replies-list'));
