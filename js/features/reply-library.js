@@ -193,23 +193,15 @@ function renderReplyLibrary() {
 
     const currentConfig = LIBRARY_CONFIG[currentMajorTab];
     if (titleEl) titleEl.textContent = currentConfig.title;
-
+    
     const subTabsContainer = document.getElementById('cr-sub-tabs');
     if (subTabsContainer) {
-        var tabsHtml = '';
-        if (currentMajorTab === 'reply') {
-            tabsHtml = `
-                <button class="reply-tab-btn ${currentSubTab === 'custom' ? 'active' : ''}" data-id="custom" data-mode="text">主字卡</button>
-                <button class="reply-tab-btn ${currentSubTab === 'emoji' ? 'active' : ''}" data-id="emoji" data-mode="emoji">Emoji</button>
-                <button class="reply-tab-btn ${currentSubTab === 'stickers' ? 'active' : ''}" data-id="stickers" data-mode="image">表情库</button>
-                <button class="reply-tab-btn ${currentSubTab === 'voice' ? 'active' : ''}" data-id="voice" data-mode="voice">语音</button>
-            `;
-        } else {
-            // 氛围感或其他情况：使用原来的逻辑
-            tabsHtml = currentConfig.tabs.map(tab => `
-                <button class="reply-tab-btn ${currentSubTab === tab.id ? 'active' : ''}" data-id="${tab.id}" data-mode="${tab.mode}">${tab.name}</button>
-            `).join('');
-        }
+        subTabsContainer.innerHTML = currentConfig.tabs.map(tab => `
+            <button class="reply-tab-btn ${currentSubTab === tab.id ? 'active' : ''}"
+                    data-id="${tab.id}" data-mode="${tab.mode}">
+                ${tab.name}
+            </button>
+        `).join('');
         subTabsContainer.querySelectorAll('.reply-tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 currentSubTab = btn.dataset.id;
