@@ -213,6 +213,27 @@ function renderReplyLibrary() {
                 renderReplyLibrary();
             });
         });
+        // ─── 确保“语音”标签始终存在 ───
+        if (currentMajorTab === 'reply') {
+            var voiceBtn = subTabsContainer.querySelector('.reply-tab-btn[data-id="voice"]');
+            if (!voiceBtn) {
+                var btn = document.createElement('button');
+                btn.className = 'reply-tab-btn' + (currentSubTab === 'voice' ? ' active' : '');
+                btn.dataset.id = 'voice';
+                btn.dataset.mode = 'voice';
+                btn.textContent = '语音';
+                subTabsContainer.appendChild(btn);
+                btn.addEventListener('click', function() {
+                    currentSubTab = 'voice';
+                    _batchModeActive = false;
+                    _batchSelectedIndices.clear();
+                    _activeGroupFilter = null;
+                    _searchVisible = false;
+                    _searchQuery = '';
+                    renderReplyLibrary();
+                });
+            }
+        }
     }
 
     list.innerHTML = '';
