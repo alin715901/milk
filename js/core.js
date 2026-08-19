@@ -293,6 +293,7 @@ const loadData = async () => {
             localforage.getItem(getStorageKey('customStatuses')),
             localforage.getItem(getStorageKey('customMottos')),
             localforage.getItem(getStorageKey('customIntros')),
+            localforage.getItem(getStorageKey('customVoice')),  // ← 新增
             localforage.getItem(getStorageKey('anniversaries')),
             localforage.getItem(getStorageKey('stickerLibrary')),
             localforage.getItem(`${APP_PREFIX}customThemes`),
@@ -317,19 +318,20 @@ const loadData = async () => {
         const savedStatuses = getVal(5);
         const savedMottos = getVal(6);
         const savedIntros = getVal(7);
-        const savedAnniversaries = getVal(8);
-        const savedStickers = getVal(9);
-        const savedCustomThemes = getVal(10);
-        const savedChatBg = getVal(11);
-        const partnerAvatarSrc = getVal(12);
-        const myAvatarSrc = getVal(13);
-        const savedPartnerPersonas = getVal(14);
-        const savedShowNameConfig = getVal(15);
-        const savedThemeSchemes = getVal(16);
-        const savedMyStickers = getVal(17);
-        const savedReplyGroups = getVal(18);
-        const savedPokeGroups = getVal(19);
-        const savedStatusGroups = getVal(20);
+        const savedVoice = getVal(8);
+        const savedAnniversaries = getVal(9);
+        const savedStickers = getVal(10);
+        const savedCustomThemes = getVal(11);
+        const savedChatBg = getVal(12);
+        const partnerAvatarSrc = getVal(13);
+        const myAvatarSrc = getVal(14);
+        const savedPartnerPersonas = getVal(15);
+        const savedShowNameConfig = getVal(16);
+        const savedThemeSchemes = getVal(17);
+        const savedMyStickers = getVal(18);
+        const savedReplyGroups = getVal(19);
+        const savedPokeGroups = getVal(20);
+        const savedStatusGroups = getVal(21);
 
         if (savedPartnerPersonas) partnerPersonas = savedPartnerPersonas;
 
@@ -358,6 +360,8 @@ const loadData = async () => {
         
         if (savedIntros) customIntros = savedIntros;
         else customIntros = CONSTANTS.WELCOME_ANIMATIONS.map(a => `${a.line1}|${a.line2}`);
+
+        if (savedVoice && Array.isArray(savedVoice)) customVoice = savedVoice;
 
         if (savedMessages && Array.isArray(savedMessages)) {
             messages = savedMessages.map(m => ({
@@ -575,6 +579,7 @@ const saveData = async () => {
         { key: 'customStatuses',         val: () => localforage.setItem(getStorageKey('customStatuses'), customStatuses) },
         { key: 'customMottos',           val: () => localforage.setItem(getStorageKey('customMottos'), customMottos) },
         { key: 'customIntros',           val: () => localforage.setItem(getStorageKey('customIntros'), customIntros) },
+        { key: 'customVoice',            val: () => localforage.setItem(getStorageKey('customVoice'), customVoice) },  // ← 新增
         { key: 'stickerLibrary',         val: () => localforage.setItem(getStorageKey('stickerLibrary'), stickerLibrary) },
         { key: 'myStickerLibrary',       val: () => localforage.setItem(getStorageKey('myStickerLibrary'), myStickerLibrary) },
         { key: 'customThemes',           val: () => localforage.setItem(`${APP_PREFIX}customThemes`, customThemes) },
