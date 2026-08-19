@@ -172,10 +172,12 @@
 
             const duration = msg.voice.duration || 0;
             const fakeText = msg.voice.fakeText || '';
+            const url = msg.voice.url || '';
             const widthPx = Math.round(80 + Math.min(duration, 60) / 60 * 120);
 
+            // 如果有真实 URL（语音库），在气泡上标记 data-voice-url
             bubble.innerHTML = `
-                <div class="voice-bubble" data-fake="1" data-duration="${duration}" data-msg-id="${msgId}" style="width:${widthPx}px; display:flex; align-items:center; gap:6px;">
+                <div class="voice-bubble" data-fake="1" data-duration="${duration}" data-msg-id="${msgId}" data-voice-url="${url}" style="width:${widthPx}px; display:flex; align-items:center; gap:6px;">
                     <svg class="voice-wifi-icon" viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="6" cy="11" r="1.3" fill="currentColor" stroke="none"/>
                         <path class="voice-arc-mid" d="M10 8 A 3.5 3.5 0 0 1 10 14"/>
