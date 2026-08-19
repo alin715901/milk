@@ -2693,6 +2693,7 @@ function _showVoiceAddDialog() {
         var urlInput = document.getElementById('voice-url-input');
         var labelInput = document.getElementById('voice-label-input');
         var durationInput = document.getElementById('voice-duration-input');
+        var textInput = document.getElementById('voice-text-input');  // ← 获取文字输入框
         
         var url = urlInput.value.trim();
         var label = labelInput.value.trim() || '语音';
@@ -2745,9 +2746,9 @@ function _showVoiceAddDialog() {
         if (typeof window.voiceList === 'undefined') {
             window.voiceList = [];
         }
-        window.voiceList.push({ url: url, label: label, duration: duration });
+        window.voiceList.push({ url: url, label: label, duration: duration, text: textContent });
         if (typeof customVoice !== 'undefined') {
-            customVoice.push({ url: url, label: label, duration: duration });
+            customVoice.push({ url: url, label: label, duration: duration, text: textContent });
         }
         // alert('4. URL push 完成，当前数量: ' + customVoice.length);
         if (typeof throttledSaveData === 'function') throttledSaveData();
