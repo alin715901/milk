@@ -177,23 +177,20 @@
             const widthPx = Math.round(80 + Math.min(duration, 60) / 60 * 120);
 
             bubble.innerHTML = `
-                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                    <div class="voice-bubble" data-fake="1" data-duration="${duration}" data-msg-id="${msgId}" data-voice-url="${url}" style="width:${widthPx}px; display:flex; align-items:center; gap:6px; cursor:pointer;">
-                        <svg class="voice-wifi-icon" viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="6" cy="11" r="1.3" fill="currentColor" stroke="none"/>
-                            <path class="voice-arc-mid" d="M10 8 A 3.5 3.5 0 0 1 10 14"/>
-                            <path class="voice-arc-out" d="M13 5 A 7 7 0 0 1 13 17"/>
-                        </svg>
-                        <div class="voice-loading-dots">
-                            <span></span><span></span><span></span>
-                        </div>
-                        <span class="voice-duration">${duration}"</span>
+                <div class="voice-bubble" data-fake="1" data-duration="${duration}" data-msg-id="${msgId}" style="width:${widthPx}px; display:flex; align-items:center; gap:6px;">
+                    <svg class="voice-wifi-icon" viewBox="0 0 22 22" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="6" cy="11" r="1.3" fill="currentColor" stroke="none"/>
+                        <path class="voice-arc-mid" d="M10 8 A 3.5 3.5 0 0 1 10 14"/>
+                        <path class="voice-arc-out" d="M13 5 A 7 7 0 0 1 13 17"/>
+                    </svg>
+                    <div class="voice-loading-dots">
+                        <span></span><span></span><span></span>
                     </div>
-                    ${msg.voice.text ? `<button class="voice-text-toggle" data-msg-id="${msgId}" style="display:none;background:none;border:1px solid var(--border-color);border-radius:50%;width:28px;height:28px;cursor:pointer;color:var(--text-secondary);font-size:11px;transition:all 0.2s;flex-shrink:0;" onmouseover="this.style.borderColor='var(--accent-color)';this.style.color='var(--accent-color)'" onmouseout="this.style.borderColor='var(--border-color)';this.style.color='var(--text-secondary)'">转</button>` : ''}
+                    <span class="voice-duration">${duration}"</span>
                 </div>
-                ${msg.voice.text ? `<div class="voice-text-content" data-msg-id="${msgId}" style="display:none;width:100%;padding:6px 10px;margin-top:4px;font-size:13px;color:var(--text-primary);background:rgba(var(--accent-color-rgb),0.06);border-radius:8px;border-left:2px solid var(--accent-color);">${escapeHtml(msg.voice.text)}</div>` : ''}
                 ${fakeText ? `<div class="voice-fake-text">${escapeHtml(fakeText)}</div>` : ''}
             `;
+        }
         
         // ─────────── 当前播放状态 ───────────
         let _currentAudio = null;
@@ -271,33 +268,6 @@
                 window._currentAudio = audio;
                 currentBubble = bubble;
                 bubble.classList.add('playing');
-
-                // ★★★ 显示“转”按钮 ★★★
-                const toggleBtnPlay = document.querySelector(`.voice-text-toggle[data-msg-id="${msgId}"]`);
-                if (toggleBtnPlay) toggleBtnPlay.style.display = 'flex';
-
-                audio.play().catch(() => {
-                    showNotification('语音播放失败，请检查链接', 'error');
-                    bubble.classList.remove('playing');
-                    if (currentBubble === bubble) currentBubble = null;
-                });
-
-                audio.onended = () => {
-                    bubble.classList.remove('playing');
-                    if (currentBubble === bubble) currentBubble = null;
-                    window._currentAudio = null;
-                    _currentAudio = null;
-                    // ★★★ 隐藏“转”按钮 ★★★
-                    const toggleBtnEnd = document.querySelector(`.voice-text-toggle[data-msg-id="${msgId}"]`);
-                    if (toggleBtnEnd) {
-                        toggleBtnEnd.style.display = 'none';
-                        const textContentEnd = document.querySelector(`.voice-text-content[data-msg-id="${msgId}"]`);
-                        if (textContentEnd) {
-                            textContentEnd.style.display = 'none';
-                            toggleBtnEnd.textContent = '转';
-                        }
-                    }
-                };
                 
                 audio.play().catch(() => {
                     showNotification('语音播放失败，请检查链接', 'error');
@@ -313,20 +283,6 @@
                 return;
             }
 
-            // ── 点击“转/收”按钮 ─────────────────────────────
-            const toggleBtn = e.target.closest('.voice-text-toggle');
-            if (toggleBtn) {
-                const msgId = toggleBtn.dataset.msgId;
-                const textContent = document.querySelector(`.voice-text-content[data-msg-id="${msgId}"]`);
-                if (textContent) {
-                    const isShowing = textContent.style.display === 'block';
-                    textContent.style.display = isShowing ? 'none' : 'block';
-                    toggleBtn.textContent = isShowing ? '转' : '收';
-                }
-                return;
-            }
-
-            
             // ★ 点击同一条正在播放的语音，暂停
             if (currentBubble === bubble && bubble.classList.contains('playing')) {
                 // 停止音频（两种变量都试）
