@@ -2325,7 +2325,6 @@ function initReplyLibraryListeners() {
             }
             // ★★★ 新增：语音分支 ★★★
             if (currentSubTab === 'voice') {
-                alert('语音分支被触发了！');
                 _showVoiceAddDialog();
                 return;
             }
@@ -2604,18 +2603,23 @@ function _showVoiceAddDialog() {
     });
     
     document.getElementById('voice-add-confirm').addEventListener('click', function() {
-        alert('添加按钮被点击了！');
+        alert('1. 按钮被点击');
+        
         var fileInput = document.getElementById('voice-file-input');
         var urlInput = document.getElementById('voice-url-input');
         var labelInput = document.getElementById('voice-label-input');
         var durationInput = document.getElementById('voice-duration-input');
-        
+    
+        alert('2. 获取输入框完成');
+    
         var url = urlInput.value.trim();
         var label = labelInput.value.trim() || '语音';
         var duration = parseFloat(durationInput.value) || 0;
-        
-        // 检查是否有文件或 URL
+    
+        alert('3. 读取值完成: url=' + url + ', label=' + label + ', duration=' + duration);
+    
         if (fileInput.files && fileInput.files.length > 0) {
+            alert('4. 有文件');
             var file = fileInput.files[0];
             if (file.size > 10 * 1024 * 1024) {
                 alert('文件不能超过 10MB');
@@ -2623,6 +2627,7 @@ function _showVoiceAddDialog() {
             }
             var reader = new FileReader();
             reader.onload = function(e) {
+                alert('5. 文件读取完成');
                 var base64 = e.target.result;
                 customVoice.push({ url: base64, label: label, duration: duration });
                 if (typeof throttledSaveData === 'function') throttledSaveData();
@@ -2633,11 +2638,15 @@ function _showVoiceAddDialog() {
             reader.readAsDataURL(file);
             return;
         }
-        
+    
+        alert('4. 没有文件，检查 URL');
+    
         if (!url) {
             alert('请选择文件或输入 URL');
             return;
         }
+    
+        alert('5. 使用 URL 添加');
         customVoice.push({ url: url, label: label, duration: duration });
         if (typeof throttledSaveData === 'function') throttledSaveData();
         _renderVoiceTab();
