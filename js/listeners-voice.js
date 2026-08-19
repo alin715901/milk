@@ -241,12 +241,7 @@
                         }
                         bubble.classList.remove('playing');
                         currentBubble = null;
-                        // 隐藏“转”按钮
-                        const toggleBtn = document.querySelector(`.voice-text-toggle[data-msg-id="${msgId}"]`);
-                        if (toggleBtn) toggleBtn.style.display = 'none';
-                        return;
-                    }
-
+                        
                     // 如果有其他语音在播放，先暂停
                     if (window._currentAudio) {
                         window._currentAudio.pause();
@@ -395,20 +390,6 @@
                 }
             }
 
-            // ── 点击“转/收”按钮 ─────────────────────────────
-            const toggleBtn = e.target.closest('.voice-text-toggle');
-            if (toggleBtn) {
-                const msgId = toggleBtn.dataset.msgId;
-                const textContent = document.querySelector(`.voice-text-content[data-msg-id="${msgId}"]`);
-                if (textContent) {
-                    const isShowing = textContent.style.display === 'block';
-                    textContent.style.display = isShowing ? 'none' : 'block';
-                    toggleBtn.textContent = isShowing ? '转' : '收';
-                    toggleBtn.style.color = isShowing ? 'var(--text-secondary)' : 'var(--accent-color)';
-                    toggleBtn.style.borderColor = isShowing ? 'var(--border-color)' : 'var(--accent-color)';
-                }
-                return;
-            }
             
             // ── 无配置：假装播放 ──
             currentBubble = bubble;
