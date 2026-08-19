@@ -190,20 +190,14 @@
             `;
         }
 
-        
         // ─────────── 当前播放状态 ───────────
         let _currentAudio = null;
         let currentBubble = null;
 
         function _stopCurrentAudio() {
-            // 同时清两个变量
-            if (window._currentAudio) {
-                window._currentAudio.pause();
-                window._currentAudio = null;
-            }
             if (_currentAudio) {
-            _currentAudio.pause();
-            _currentAudio = null;
+                _currentAudio.pause();
+                _currentAudio = null;
             }
             if (currentBubble) {
                 currentBubble.classList.remove('playing', 'tts-loading');
@@ -230,16 +224,7 @@
             if (bubble.classList.contains('tts-loading')) return;
 
             if (currentBubble === bubble && bubble.classList.contains('playing')) {
-                if (window._currentAudio) {
-                    window._currentAudio.pause();
-                    window._currentAudio = null;
-                }
-                if (_currentAudio) {
-                _currentAudio.pause();
-                _currentAudio = null;
-                }
-                bubble.classList.remove('playing');
-                currentBubble = null;
+                _stopCurrentAudio();
                 return;
             }
 
@@ -248,43 +233,6 @@
             const duration = Number(bubble.dataset.duration) || 3;
             const msgId = bubble.dataset.msgId;
 
-            // ── 优先判断：如果是语音库的语音（有真实 URL，但没有 fakeText），直接播放 MP3 ──
-            const msg = findMessage(msgId);
-            const voiceUrl = msg && msg.voice && msg.voice.url ? msg.voice.url : null;
-            if (voiceUrl && !msg.voice.fakeText) {
-                // 先停止当前播放
-                if (window._currentAudio) {
-                    window._currentAudio.pause();
-                    window._currentAudio = null;
-                }
-                if (currentBubble) {
-                    currentBubble.classList.remove('playing');
-                    currentBubble = null;
-                }
-                
-                const audio = new Audio(voiceUrl);
-                _currentAudio = audio;          // ← 新增
-                window._currentAudio = audio;
-                currentBubble = bubble;
-                bubble.classList.add('playing');
-
-            
-            // ★ 点击同一条正在播放的语音，暂停
-            if (currentBubble === bubble && bubble.classList.contains('playing')) {
-                // 停止音频（两种变量都试）
-                if (window._currentAudio) {
-                    window._currentAudio.pause();
-                    window._currentAudio = null;
-                }
-                if (_currentAudio) {
-                    _currentAudio.pause();
-                    _currentAudio = null;
-                }
-                bubble.classList.remove('playing');
-                currentBubble = null;
-                return;
-            }
-            
             // ── 有 TTS 配置：走真实语音 ──
             if (window.voiceTTS && window.voiceTTS.isTtsReady() && msgId) {
                 const msg = findMessage(msgId);
