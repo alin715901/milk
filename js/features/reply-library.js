@@ -2564,5 +2564,95 @@ function _renderVoiceTab(list) {
 
 // ─── 语音添加对话框 ──────────────────────────────────────────────
 function _showVoiceAddDialog() {
-    alert('测试：语音对话框被调用了');
+    alert('1. 函数开始执行');
+    
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;';
+    
+    var panel = document.createElement('div');
+    panel.style.cssText = 'background:var(--secondary-bg);border-radius:16px;padding:24px;width:92%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.3);';
+    panel.innerHTML = `
+        <div style="font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:16px;">添加语音</div>
+        <div style="margin-bottom:12px;">
+            <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">上传 MP3 文件</label>
+            <input type="file" id="voice-file-input" accept="audio/mpeg,audio/mp3" style="width:100%;padding:8px;border:1px solid var(--border-color);border-radius:8px;background:var(--primary-bg);color:var(--text-primary);">
+        </div>
+        <div style="margin-bottom:12px;">
+            <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">或输入 URL 链接</label>
+            <input type="text" id="voice-url-input" placeholder="https://example.com/audio.mp3" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;background:var(--primary-bg);color:var(--text-primary);font-size:13px;font-family:var(--font-family);box-sizing:border-box;">
+        </div>
+        <div style="margin-bottom:12px;">
+            <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">语音名称（选填）</label>
+            <input type="text" id="voice-label-input" placeholder="例如：早安问候" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;background:var(--primary-bg);color:var(--text-primary);font-size:13px;font-family:var(--font-family);box-sizing:border-box;">
+        </div>
+        <div style="margin-bottom:16px;">
+            <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">时长（秒，选填）</label>
+            <input type="number" id="voice-duration-input" placeholder="3" min="0" step="0.5" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;background:var(--primary-bg);color:var(--text-primary);font-size:13px;font-family:var(--font-family);box-sizing:border-box;">
+        </div>
+        <div style="display:flex;gap:10px;">
+            <button id="voice-add-cancel" style="flex:1;padding:10px;border:1.5px solid var(--border-color);border-radius:10px;background:none;color:var(--text-secondary);cursor:pointer;font-size:13px;font-family:var(--font-family);">取消</button>
+            <button id="voice-add-confirm" style="flex:2;padding:10px;border:none;border-radius:10px;background:var(--accent-color);color:#fff;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--font-family);">添加</button>
+        </div>
+    `;
+    overlay.appendChild(panel);
+    document.body.appendChild(overlay);
+    
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) overlay.remove();
+    });
+    document.getElementById('voice-add-cancel').addEventListener('click', function() {
+        overlay.remove();
+    });
+    
+    document.getElementById('voice-add-confirm').addEventListener('click', function() {
+        alert('2. 添加按钮被点击');
+        
+        var fileInput = document.getElementById('voice-file-input');
+        var urlInput = document.getElementById('voice-url-input');
+        var labelInput = document.getElementById('voice-label-input');
+        var durationInput = document.getElementById('voice-duration-input');
+        
+        var url = urlInput.value.trim();
+        var label = labelInput.value.trim() || '语音';
+        var duration = parseFloat(durationInput.value) || 0;
+        
+        if (fileInput.files && fileInput.files.length > 0) {
+            alert('3. 有文件，开始读取');
+            var file = fileInput.files[0];
+            if (file.size > 10 * 1024 * 1024) {
+                alert('文件不能超过 10MB');
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                alert('4. 文件读取完成');
+                var base64 = e.target.result;
+                customVoice.push({ url: base64, label: label, duration: duration });
+                alert('5. push 完成，当前数量: ' + customVoice.length);
+                if (typeof throttledSaveData === 'function') throttledSaveData();
+                _renderVoiceTab(document.getElementById('custom-replies-list'));
+                alert('6. 渲染完成');
+                overlay.remove();
+                showNotification('✓ 语音已添加', 'success');
+                alert('7. 全部完成');
+            };
+            reader.readAsDataURL(file);
+            return;
+        }
+        
+        if (!url) {
+            alert('请选择文件或输入 URL');
+            return;
+        }
+        
+        alert('3. 使用 URL 添加');
+        customVoice.push({ url: url, label: label, duration: duration });
+        alert('4. URL push 完成，当前数量: ' + customVoice.length);
+        if (typeof throttledSaveData === 'function') throttledSaveData();
+        _renderVoiceTab(document.getElementById('custom-replies-list'));
+        alert('5. URL 渲染完成');
+        overlay.remove();
+        showNotification('✓ 语音已添加', 'success');
+        alert('6. URL 全部完成');
+    });
 }
