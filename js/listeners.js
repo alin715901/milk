@@ -48,6 +48,52 @@ function initChatActionListeners() {
                     // 触觉反馈
                     if (navigator.vibrate) navigator.vibrate(30);
                 }, LONG_PRESS_MS);
+                _longPressTimer = setTimeout(() => {
+                    _longPressTriggered = true;
+                    _hideAllActions();
+                    wrapper.classList.add('actions-visible');
+    
+                    // ★★★ 新增：转文字按钮 ★★★
+                    const msgId = wrapper.dataset.msgId || wrapper.dataset.id;
+                    const msg = messages.find(m => String(m.id) === String(msgId));
+                    if (msg && msg.voice && msg.voice.text) {
+                        // 检查是否已经有转文字按钮，避免重复添加
+                        if (!wrapper.querySelector('.voice-transcribe-btn')) {
+                            const transBtn = document.createElement('button');
+                            transBtn.className = 'meta-action-btn voice-transcribe-btn';
+                            transBtn.innerHTML = '<i class="fas fa-file-alt"></i> 转文字';
+                            transBtn.style.cssText = 'background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:4px 8px;font-size:12px;display:flex;align-items:center;gap:4px;';
+                            transBtn.onmouseover = function() { this.style.color = 'var(--accent-color)'; };
+                            transBtn.onmouseout = function() { this.style.color = 'var(--text-secondary)'; };
+                            transBtn.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                _hideAllActions();
+                                if (msg && msg.voice && msg.voice.text) {
+                                    showNotification(msg.voice.text, 'info', 5000);
+                                } else {
+                                    showNotification('该语音没有文字内容', 'warning', 2000);
+                                }
+                            });
+                            // 找到工具栏位置，把转文字按钮加进去
+                            const actionsContainer = wrapper.querySelector('.message-meta-actions');
+                            if (actionsContainer) {
+                                // 复制样式到按钮
+                                const existingBtns = actionsContainer.querySelectorAll('.meta-action-btn');
+                                if (existingBtns.length > 0) {
+                                    const style = window.getComputedStyle(existingBtns[0]);
+                                    transBtn.style.fontSize = style.fontSize || '12px';
+                                    transBtn.style.padding = style.padding || '4px 8px';
+                                }
+                                actionsContainer.appendChild(transBtn);
+                            }
+                        }
+                    }
+    
+                    // 阻止文字选中
+                    if (window.getSelection) window.getSelection().removeAllRanges();
+                    // 触觉反馈
+                    if (navigator.vibrate) navigator.vibrate(30);
+                }, LONG_PRESS_MS);
             }, { passive: false });
 
             DOMElements.chatContainer.addEventListener('touchend', (e) => {
