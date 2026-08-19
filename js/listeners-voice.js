@@ -229,6 +229,36 @@
             if (bubble.classList.contains('tts-loading')) return;
 
             if (currentBubble === bubble && bubble.classList.contains('playing')) {
+                / ── 点击语音条 ──
+                document.body.addEventListener('click', async (e) => {
+                    // ... 前面的代码 ...
+
+                    // 如果点击的是正在播放的语音，暂停它
+                    if (currentBubble === bubble && bubble.classList.contains('playing')) {
+                        if (window._currentAudio) {
+                            window._currentAudio.pause();
+                            window._currentAudio = null;
+                        }
+                        bubble.classList.remove('playing');
+                        currentBubble = null;
+                        // 隐藏“转”按钮
+                        const toggleBtn = document.querySelector(`.voice-text-toggle[data-msg-id="${msgId}"]`);
+                        if (toggleBtn) toggleBtn.style.display = 'none';
+                        return;
+                    }
+
+                    // 如果有其他语音在播放，先暂停
+                    if (window._currentAudio) {
+                        window._currentAudio.pause();
+                        window._currentAudio = null;
+                    }
+                    if (currentBubble) {
+                        currentBubble.classList.remove('playing');
+                        currentBubble = null;
+                    }
+                    
+                    // ... 然后播放新的语音 ...
+                });
                 _stopCurrentAudio();
                 return;
             }
