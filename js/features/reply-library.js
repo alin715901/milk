@@ -2685,3 +2685,38 @@ function _showVoiceAddDialog() {
         alert('6. URL 全部完成');
     });
 }
+
+// ─── 播放语音 ──────────────────────────────────────────────
+window._voicePlay = function(url) {
+    alert('播放函数被调用，URL: ' + url);
+    if (!url) {
+        alert('URL 为空');
+        return;
+    }
+    var audio = new Audio(url);
+    audio.play().then(function() {
+        alert('播放成功');
+    }).catch(function(err) {
+        alert('播放失败: ' + err.message);
+        showNotification('无法播放该语音，请检查文件或链接', 'error');
+    });
+};
+
+// ─── 删除语音 ──────────────────────────────────────────────
+window._voiceDelete = function(index) {
+    if (!confirm('确定删除此语音吗？')) return;
+    var voiceList = window.voiceList || [];
+    voiceList.splice(index, 1);
+    window.voiceList = voiceList;
+    if (typeof customVoice !== 'undefined') {
+        customVoice.splice(index, 1);
+    }
+    if (typeof throttledSaveData === 'function') throttledSaveData();
+    _renderVoiceTab(document.getElementById('custom-replies-list'));
+    showNotification('已删除', 'success');
+};
+
+function _escapeHtml(text) {
+    if (!text) return '';
+    return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
