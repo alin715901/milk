@@ -2858,4 +2858,34 @@ window._voiceEdit = function(index) {
     if (typeof throttledSaveData === 'function') throttledSaveData();
     _renderVoiceTab(document.getElementById('custom-replies-list'));
     showNotification('✓ 已更新', 'success');
+
+    // ★★★ 新增：修改文字内容 ★★★
+    var newText = prompt('修改文字内容（留空则不修改）:', item.text || '');
+    if (newText !== null) {
+        item.text = newText.trim();
+    }
+
+    // ★★★ 如果文字有变动，同步更新已发送的同语音消息 ★★★
+    if (textChanged && item.url) {
+        var updatedCount = 0;
+        if (typeof messages !== 'undefined' && Array.isArray(messages)) {
+            messages.forEach(function(msg) {
+                if (msg.voice && msg.voice.url === item.url) {
+                    msg.voice.text = item.text;
+                    updatedCount++;
+                }
+            });
+        }
+        if (updatedCount > 0) {
+            // 重新渲染聊天消息
+            if (typeof renderMessages === 'function') {
+                renderMessages(true);
+            }
+            showNotification('✓ 已更新 ' + updatedCount + ' 条已发送的语音消息文字', 'success');
+        }
+    }  
+    
+    if (typeof throttledSaveData === 'function') throttledSaveData();
+    _renderVoiceTab(document.getElementById('custom-replies-list'));
+    showNotification('✓ 已更新', 'success');    
 };
