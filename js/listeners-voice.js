@@ -233,6 +233,24 @@
             const duration = Number(bubble.dataset.duration) || 3;
             const msgId = bubble.dataset.msgId;
 
+            // ★★★ 新增：优先播放语音库的 MP3 ★★★
+            const msg = findMessage(msgId);
+            const voiceUrl = msg && msg.voice && msg.voice.url ? msg.voice.url : null;
+            if (voiceUrl && !msg.voice.fakeText) {
+                // 这是语音库的语音，直接播放 MP3
+                const audio = new Audio(voiceUrl);
+                audio.play().catch(() => {
+                    showNotification('语音播放失败，请检查链接', 'error');
+                });
+                currentBubble = bubble;
+                bubble.classList.add('playing');
+                audio.onended = () => {
+                    bubble.classList.remove('playing');
+                    if (currentBubble === bubble) currentBubble = null;
+                };
+                return;
+            }
+            
             // ── 有 TTS 配置：走真实语音 ──
             if (window.voiceTTS && window.voiceTTS.isTtsReady() && msgId) {
                 const msg = findMessage(msgId);
