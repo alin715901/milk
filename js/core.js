@@ -1642,6 +1642,57 @@ if (!isBatchMode && type === 'normal') {
             if (changed) {
                 _updateReadReceiptsDOM(); throttledSaveData();
             }
+            // ─── 梦角有概率发送语音 ───
+            if (Math.random() < 0.15) {
+                var voiceList = window.voiceList || [];
+                if (typeof customVoice !== 'undefined' && customVoice.length > 0) {
+                    voiceList = customVoice;
+                }
+                if (voiceList.length > 0) {
+                    var randomVoice = voiceList[Math.floor(Math.random() * voiceList.length)];
+                    var url = typeof randomVoice === 'string' ? randomVoice : (randomVoice.url || '');
+                    var duration = randomVoice.duration || 3;
+                    if (url) {
+                        // 隐藏“正在输入”
+                        (function() {
+                            try {
+                                if (window._typingIndicatorAutoHideTimer) {
+                                    clearTimeout(window._typingIndicatorAutoHideTimer);
+                                    window._typingIndicatorAutoHideTimer = null;
+                                }
+                            } catch (e) {}
+                            var tiW = document.getElementById('typing-indicator-wrapper');
+                            if (tiW) {
+                                var tiInner = tiW.querySelector('.typing-indicator');
+                                if (tiInner) {
+                                    tiInner.classList.add('hiding');
+                                    setTimeout(function() {
+                                        tiW.style.display = 'none';
+                                        if (tiInner) tiInner.classList.remove('hiding');
+                                    }, 240);
+                                } else {
+                                    tiW.style.display = 'none';
+                                }
+                            }
+                        })();
+                        // 发送语音
+                        addMessage({
+                           id: Date.now(),
+                           sender: settings.partnerName || '对方',
+                           text: '',
+                           timestamp: new Date(),
+                           voice: { url: url, duration: duration, fakeText: '' },
+                           type: 'normal'
+                        });
+                        if (typeof window._sendPartnerNotification === 'function') {
+                            window._sendPartnerNotification(settings.partnerName || '对方', '[语音消息]');
+                        }
+                        playSound('message');
+                        return; // 直接返回，不继续文字回复
+                    }
+                }
+            }
+
 
 if (partnerPersonas && partnerPersonas.length > 0 && Math.random() < 0.3) {
                 const currentPool = [
