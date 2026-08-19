@@ -2325,6 +2325,7 @@ function initReplyLibraryListeners() {
             }
             // ★★★ 新增：语音分支 ★★★
             if (currentSubTab === 'voice') {
+                alert('语音分支被触发了！');
                 _showVoiceAddDialog();
                 return;
             }
