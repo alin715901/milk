@@ -378,4 +378,47 @@
                 .replace(/"/g, '&quot;');
         }
     });
+
+        // ─────────── 对方文本消息 → 从语音库随机选一条语音 ───────────
+        function maybeFakeVoiceForPartner(wrapper) {
+            if (!wrapper.classList.contains('received')) return;
+            const msgId = wrapper.dataset.msgId || wrapper.dataset.id;
+            if (!msgId) return;
+            const msg = findMessage(msgId);
+            if (!msg) return;
+            if (msg.voice || msg.image || msg.type === 'system') return;
+            if (!msg.text || !msg.text.trim()) return;
+            if (msg._fakeVoiceConsidered) return;
+            msg._fakeVoiceConsidered = true;
+
+            if (!_isFakeVoiceOn()) return;
+            if (Math.random() >= FAKE_VOICE_PROBABILITY) return;
+
+            // ★★★ 从语音库随机选一条 ★★★
+            var voiceList = window.voiceList || [];
+    
+            // 如果没有语音库，用原来的伪语音
+            if (voiceList.length === 0) {
+            const textLen = msg.text.trim().length;
+            const duration = Math.max(1, Math.floor(textLen / 3) + Math.floor(Math.random() * 4));
+            msg.voice = { url: '', duration: duration, fakeText: msg.text, transcript: '' };
+            msg.text = '';
+            if (typeof throttledSaveData === 'function') throttledSaveData();
+            return;
+        }
+
+            // 从语音库随机选一条
+            var randomVoice = voiceList[Math.floor(Math.random() * voiceList.length)];
+            if (!randomVoice) return;
+
+            // ★★★ 关键：把语音库的 text 传给 msg.voice.text ★★★
+            msg.voice = {
+                url: randomVoice.url,
+                duration: randomVoice.duration || 3,
+                text: randomVoice.text || msg.text,  // ← 语音库的文字
+                label: randomVoice.label || '语音'
+            };
+            msg.text = '';  // 清空原文字
+            if (typeof throttledSaveData === 'function') throttledSaveData();
+        }
 })();
