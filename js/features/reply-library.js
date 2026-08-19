@@ -2866,8 +2866,10 @@ window._voiceEdit = function(index) {
 
     // ★★★ 新增：修改文字内容 ★★★
     var newText = prompt('修改文字内容（留空则不修改）:', item.text || '');
+    var textChanged = false;
     if (newText !== null) {
         item.text = newText.trim();
+        textChanged = true;
     }
 
     // ★★★ 如果文字有变动，同步更新已发送的同语音消息 ★★★
