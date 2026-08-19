@@ -250,6 +250,7 @@
                 }
                 
                 const audio = new Audio(voiceUrl);
+                _currentAudio = audio;          // ← 新增
                 window._currentAudio = audio;
                 currentBubble = bubble;
                 bubble.classList.add('playing');
