@@ -172,6 +172,8 @@
 
             const duration = msg.voice.duration || 0;
             const fakeText = msg.voice.fakeText || '';
+            const url = msg.voice.url || '';
+            const text = msg.voice.text || '';
             const widthPx = Math.round(80 + Math.min(duration, 60) / 60 * 120);
 
             bubble.innerHTML = `
@@ -187,12 +189,12 @@
                         </div>
                         <span class="voice-duration">${duration}"</span>
                     </div>
-                    ${msg.voice.text ? `<button class="voice-text-toggle" data-msg-id="${msgId}" style="display:none;background:none;border:1px solid var(--border-color);border-radius:50%;width:28px;height:28px;cursor:pointer;color:var(--text-secondary);font-size:11px;transition:all 0.2s;flex-shrink:0;" onmouseover="this.style.borderColor='var(--accent-color)';this.style.color='var(--accent-color)'" onmouseout="this.style.borderColor='var(--border-color)';this.style.color='var(--text-secondary)'">转</button>` : ''}
-                    ${msg.voice.text ? `<div class="voice-text-content" data-msg-id="${msgId}" style="display:none;width:100%;padding:6px 10px;margin-top:4px;font-size:13px;color:var(--text-primary);background:rgba(var(--accent-color-rgb),0.06);border-radius:8px;border-left:2px solid var(--accent-color);">${escapeHtml(msg.voice.text)}</div>` : ''}
+                    ${text ? `<button class="voice-text-toggle" data-msg-id="${msgId}" style="display:none;background:none;border:1px solid var(--border-color);border-radius:50%;width:28px;height:28px;cursor:pointer;color:var(--text-secondary);font-size:11px;transition:all 0.2s;flex-shrink:0;" onmouseover="this.style.borderColor='var(--accent-color)';this.style.color='var(--accent-color)'" onmouseout="this.style.borderColor='var(--border-color)';this.style.color='var(--text-secondary)'">转</button>` : ''}
                 </div>
+                ${text ? `<div class="voice-text-content" data-msg-id="${msgId}" style="display:none;width:100%;padding:6px 10px;margin-top:4px;font-size:13px;color:var(--text-primary);background:rgba(var(--accent-color-rgb),0.06);border-radius:8px;border-left:2px solid var(--accent-color);">${escapeHtml(text)}</div>` : ''}
                 ${fakeText ? `<div class="voice-fake-text">${escapeHtml(fakeText)}</div>` : ''}
             `;
-
+        }
         // ─────────── 当前播放状态 ───────────
         let _currentAudio = null;
         let currentBubble = null;
