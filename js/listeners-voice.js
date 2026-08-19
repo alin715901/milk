@@ -240,16 +240,52 @@
             const msg = findMessage(msgId);
             const voiceUrl = msg && msg.voice && msg.voice.url ? msg.voice.url : null;
             if (voiceUrl && !msg.voice.fakeText) {
-                // 直接播放 MP3
+                // 如果当前有音频在播放，暂停
+                if (window._currentAudio && !window._currentAudio.paused) {
+                    window._currentAudio.pause();
+                    window._currentAudio = null;
+                    bubble.classList.remove('playing');
+                    if (currentBubble === bubble) currentBubble = null;
+                    // 隐藏“转”按钮
+                    const toggleBtn = document.querySelector(`.voice-text-toggle[data-msg-id="${msgId}"]`);
+                    if (toggleBtn) toggleBtn.style.display = 'none';
+                    return;
+                }
+
+                // 停止之前的音频
+                if (window._currentAudio) {
+                    window._currentAudio.pause();
+                    window._currentAudio = null;
+                }
+    
                 const audio = new Audio(voiceUrl);
-                audio.play().catch(() => {
-                    showNotification('语音播放失败，请检查链接', 'error');
-                });
+                window._currentAudio = audio;
                 currentBubble = bubble;
                 bubble.classList.add('playing');
+    
+                // 显示“转”按钮
+                const toggleBtnPlay = document.querySelector(`.voice-text-toggle[data-msg-id="${msgId}"]`);
+                if (toggleBtnPlay) toggleBtnPlay.style.display = 'flex';
+    
+                audio.play().catch(() => {
+                    showNotification('语音播放失败，请检查链接', 'error');
+                    bubble.classList.remove('playing');
+                    if (currentBubble === bubble) currentBubble = null;
+                });
                 audio.onended = () => {
                     bubble.classList.remove('playing');
                     if (currentBubble === bubble) currentBubble = null;
+                    window._currentAudio = null;
+                    // 隐藏“转”按钮
+                    const toggleBtnEnd = document.querySelector(`.voice-text-toggle[data-msg-id="${msgId}"]`);
+                    if (toggleBtnEnd) {
+                        toggleBtnEnd.style.display = 'none';
+                        const textContentEnd = document.querySelector(`.voice-text-content[data-msg-id="${msgId}"]`);
+                        if (textContentEnd) {
+                            textContentEnd.style.display = 'none';
+                            toggleBtnEnd.textContent = '转';
+                        }
+                    }
                 };
                 return;
             }
