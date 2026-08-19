@@ -2534,7 +2534,6 @@ function _renderVoiceTab(list) {
     if (!list) return;
     
     var voiceList = window.voiceList || [];
-    // 如果没有 voiceList，从 customVoice 读取
     if (voiceList.length === 0 && typeof customVoice !== 'undefined' && customVoice.length > 0) {
         voiceList = customVoice;
         window.voiceList = customVoice;
@@ -2545,122 +2544,87 @@ function _renderVoiceTab(list) {
         return;
     }
     
-    var html = '<div style="padding:8px 12px;">';
+    var html = '<div style="padding:8px 4px;">';
     voiceList.forEach(function(item, index) {
         var url = typeof item === 'string' ? item : (item.url || '');
         var label = typeof item === 'string' ? item : (item.label || '语音');
         var duration = item.duration || 0;
         
-        // 进度条模拟（占位，后续可做成真实进度）
-        var progressBars = '';
-        for (var i = 0; i < 16; i++) {
-            var h = 20 + Math.floor(Math.random() * 50);
-            progressBars += `<div class="voice-wave-bar" style="height:${h}%;background:var(--accent-color);opacity:0.3;border-radius:2px;transition:opacity 0.2s;"></div>`;
-        }
-        
         html += `
-            <div class="voice-item" style="
+            <div style="
                 display:flex;
                 align-items:center;
-                gap:12px;
-                padding:10px 14px;
-                margin-bottom:8px;
-                border-radius:12px;
+                gap:14px;
+                padding:12px 16px;
+                margin-bottom:10px;
+                border-radius:16px;
                 background:var(--secondary-bg);
-                border:1px solid var(--border-color);
+                border:1.5px solid var(--border-color);
                 transition:all 0.2s;
-                cursor:default;
+                box-shadow:0 2px 8px rgba(0,0,0,0.04);
             ">
-                <!-- 语音图标 -->
                 <div style="
-                    width:36px;
-                    height:36px;
+                    width:44px;
+                    height:44px;
                     border-radius:50%;
-                    background:var(--accent-color);
+                    background:linear-gradient(135deg, var(--accent-color), rgba(var(--accent-color-rgb),0.6));
                     display:flex;
                     align-items:center;
                     justify-content:center;
                     color:#fff;
-                    font-size:16px;
+                    font-size:18px;
                     flex-shrink:0;
+                    box-shadow:0 4px 12px rgba(var(--accent-color-rgb),0.25);
                 ">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M3 18h5l4-4V6l-4 4H3v8z"/>
                         <path d="M17 8a5 5 0 010 8"/>
                         <path d="M21 4a9 9 0 010 16"/>
                     </svg>
                 </div>
                 
-                <!-- 中间：名称 + 时长 + 波形 -->
                 <div style="flex:1;min-width:0;">
-                    <div style="font-size:14px;font-weight:500;color:var(--text-primary);">${_escapeHtml(label)}</div>
-                    <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
-                        <span style="font-size:11px;color:var(--text-secondary);opacity:0.7;">${duration}"</span>
-                        <div style="display:flex;align-items:center;gap:2px;height:20px;flex:1;max-width:120px;">
-                            ${progressBars}
-                        </div>
-                    </div>
+                    <div style="font-size:15px;font-weight:600;color:var(--text-primary);line-height:1.4;">${_escapeHtml(label)}</div>
+                    <div style="font-size:12px;color:var(--text-secondary);opacity:0.7;margin-top:2px;">${duration} 秒</div>
                 </div>
                 
-                <!-- 右侧：播放、编辑、删除 -->
-                <div style="display:flex;gap:4px;flex-shrink:0;">
-                    <button class="voice-play-btn" onclick="window._voicePlay('${url}', this)" 
+                <div style="display:flex;gap:6px;flex-shrink:0;">
+                    <button onclick="window._voicePlay('${url}', this)" 
                         style="
-                            width:34px;
-                            height:34px;
-                            border-radius:50%;
-                            border:1.5px solid var(--accent-color);
-                            background:var(--accent-color);
-                            color:#fff;
-                            cursor:pointer;
-                            font-size:14px;
-                            display:flex;
-                            align-items:center;
-                            justify-content:center;
-                            transition:all 0.2s;
+                            width:34px;height:34px;border-radius:50%;border:none;
+                            background:var(--accent-color);color:#fff;cursor:pointer;font-size:13px;
+                            display:flex;align-items:center;justify-content:center;transition:all 0.2s;
+                            box-shadow:0 2px 8px rgba(var(--accent-color-rgb),0.2);
                         "
-                        onmouseover="this.style.transform='scale(1.08)'"
+                        onmouseover="this.style.transform='scale(1.05)'"
                         onmouseout="this.style.transform='scale(1)'"
                         title="播放"
                     >▶</button>
                     
-                    <button class="voice-edit-btn" onclick="window._voiceEdit(${index})" 
+                    <button onclick="window._voiceEdit(${index})" 
                         style="
-                            width:34px;
-                            height:34px;
-                            border-radius:50%;
-                            border:1px solid var(--border-color);
-                            background:var(--primary-bg);
-                            color:var(--text-secondary);
-                            cursor:pointer;
-                            font-size:13px;
-                            display:flex;
-                            align-items:center;
-                            justify-content:center;
-                            transition:all 0.2s;
+                            width:34px;height:34px;border-radius:50%;border:1px solid var(--border-color);
+                            background:transparent;color:var(--text-secondary);cursor:pointer;font-size:13px;
+                            display:flex;align-items:center;justify-content:center;transition:all 0.2s;
                         "
                         onmouseover="this.style.borderColor='var(--accent-color)';this.style.color='var(--accent-color)'"
                         onmouseout="this.style.borderColor='var(--border-color)';this.style.color='var(--text-secondary)'"
                         title="编辑"
-                    >✏️</button>
+                    >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9"/>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                        </svg>
+                    </button>
                     
-                    <button class="voice-delete-btn" onclick="window._voiceDelete(${index})" 
+                    <button onclick="window._voiceDelete(${index})" 
                         style="
-                            width:34px;
-                            height:34px;
-                            border-radius:50%;
-                            border:1px solid rgba(239,68,68,0.3);
-                            background:transparent;
-                            color:#ef4444;
-                            cursor:pointer;
-                            font-size:14px;
-                            display:flex;
-                            align-items:center;
-                            justify-content:center;
-                            transition:all 0.2s;
+                            width:34px;height:34px;border-radius:50%;border:1px solid rgba(239,68,68,0.25);
+                            background:transparent;color:#ef4444;cursor:pointer;font-size:14px;
+                            display:flex;align-items:center;justify-content:center;transition:all 0.2s;
                         "
-                        onmouseover="this.style.background='rgba(239,68,68,0.1)';this.style.transform='scale(1.08)'"
-                        onmouseout="this.style.background='transparent';this.style.transform='scale(1)'"
+                        onmouseover="this.style.background='rgba(239,68,68,0.08)'"
+                        onmouseout="this.style.background='transparent'"
                         title="删除"
                     >✕</button>
                 </div>
@@ -2852,15 +2816,24 @@ window._voiceEdit = function(index) {
     var item = voiceList[index];
     if (!item) return;
     
-    var newLabel = prompt('修改语音名称:', item.label || '语音');
-    if (newLabel !== null) {
-        item.label = newLabel.trim() || '语音';
-        var newDuration = prompt('修改时长（秒）:', item.duration || 0);
-        if (newDuration !== null) {
-            item.duration = parseFloat(newDuration) || 0;
-        }
-        if (typeof throttledSaveData === 'function') throttledSaveData();
-        _renderVoiceTab(document.getElementById('custom-replies-list'));
-        showNotification('✓ 已更新', 'success');
+    // 第一步：修改名称
+    var newLabel = prompt('修改语音名称（留空则不修改）:', item.label || '语音');
+    if (newLabel !== null && newLabel.trim() !== '') {
+        item.label = newLabel.trim();
     }
+    
+    // 第二步：修改时长
+    var newDuration = prompt('修改时长（秒，留空则不修改）:', item.duration || 0);
+    if (newDuration !== null && newDuration.trim() !== '') {
+        var dur = parseFloat(newDuration);
+        if (!isNaN(dur) && dur >= 0) {
+            item.duration = dur;
+        } else {
+            showNotification('请输入有效数字', 'warning');
+        }
+    }
+    
+    if (typeof throttledSaveData === 'function') throttledSaveData();
+    _renderVoiceTab(document.getElementById('custom-replies-list'));
+    showNotification('✓ 已更新', 'success');
 };
