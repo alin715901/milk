@@ -48,10 +48,16 @@ function initChatActionListeners() {
                     // 触觉反馈
                     if (navigator.vibrate) navigator.vibrate(30);
                 }, LONG_PRESS_MS);
-                _longPressTimer = setTimeout(() => {
-                    _longPressTriggered = true;
-                    _hideAllActions();
-                    wrapper.classList.add('actions-visible');
+            }, { passive: false });
+
+            DOMElements.chatContainer.addEventListener('touchend', (e) => {
+                clearTimeout(_longPressTimer);
+                _longPressTimer = null;
+            }, { passive: true });
+
+            DOMElements.chatContainer.addEventListener('touchmove', (e) => {
+                clearTimeout(_longPressTimer);
+                _longPressTimer = null;
             }, { passive: true });
 
             // 点击空白处收起工具栏
