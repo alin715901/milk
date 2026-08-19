@@ -266,6 +266,20 @@
                 };
                 return;
             }
+
+            // ★ 点击同一条正在播放的语音，暂停
+            if (currentBubble === bubble && bubble.classList.contains('playing')) {
+                if (window._currentAudio) {
+                    window._currentAudio.pause();
+                    window._currentAudio = null;
+                }
+                bubble.classList.remove('playing');
+                currentBubble = null;
+                return;
+            }
+            
+            // ★ 停止其他语音
+            _stopCurrentAudio();
             
             // ── 有 TTS 配置：走真实语音 ──
             if (window.voiceTTS && window.voiceTTS.isTtsReady() && msgId) {
