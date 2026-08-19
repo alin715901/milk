@@ -562,6 +562,11 @@ function _tryRecoverFromBackup() {
 }
 
 const saveData = async () => {
+    // ─── 强制保存语音数据 ───
+    if (typeof customVoice !== 'undefined') {
+        localforage.setItem(getStorageKey('customVoice'), customVoice);
+    }
+        
     if (!SESSION_ID) {
         console.warn('[saveData] SESSION_ID 尚未初始化，跳过保存以防数据写入临时 key');
         return;
