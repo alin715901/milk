@@ -1653,7 +1653,7 @@ if (!isBatchMode && type === 'normal') {
                 _updateReadReceiptsDOM(); throttledSaveData();
             }
             // ─── 梦角有概率发送语音 ───
-            if (Math.random() < 1.0) {
+            if (Math.random() < 0.15) {
                 var voiceList = window.voiceList || [];
                 if (typeof customVoice !== 'undefined' && customVoice.length > 0) {
                     voiceList = customVoice;
