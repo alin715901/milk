@@ -2598,11 +2598,11 @@ function _showVoiceAddDialog() {
     overlay.addEventListener('click', function(e) {
         if (e.target === overlay) overlay.remove();
     });
-    panel.querySelector('#voice-add-cancel').addEventListener('click', function() {
+    document.getElementById('voice-add-cancel').addEventListener('click', function() {
         overlay.remove();
     });
     
-    panel.querySelector('#voice-add-confirm').addEventListener('click', function() {
+    document.getElementById('voice-add-confirm').addEventListener('click', function() {
         var fileInput = document.getElementById('voice-file-input');
         var urlInput = document.getElementById('voice-url-input');
         var labelInput = document.getElementById('voice-label-input');
@@ -2612,6 +2612,7 @@ function _showVoiceAddDialog() {
         var label = labelInput.value.trim() || '语音';
         var duration = parseFloat(durationInput.value) || 0;
         
+        // 检查是否有文件或 URL
         if (fileInput.files && fileInput.files.length > 0) {
             var file = fileInput.files[0];
             if (file.size > 10 * 1024 * 1024) {
@@ -2641,27 +2642,4 @@ function _showVoiceAddDialog() {
         overlay.remove();
         showNotification('✓ 语音已添加', 'success');
     });
-}
-
-// 播放语音
-window._voicePlay = function(url) {
-    if (!url) return;
-    var audio = new Audio(url);
-    audio.play().catch(function() {
-        showNotification('无法播放该语音，请检查文件或链接', 'error');
-    });
-};
-
-// 删除语音
-window._voiceDelete = function(index) {
-    if (!confirm('确定删除此语音吗？')) return;
-    customVoice.splice(index, 1);
-    if (typeof throttledSaveData === 'function') throttledSaveData();
-    _renderVoiceTab();
-    showNotification('已删除', 'success');
-};
-
-function _escapeHtml(text) {
-    if (!text) return '';
-    return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
