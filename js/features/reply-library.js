@@ -2533,16 +2533,21 @@ function _renderVoiceTab(list) {
     if (!list) list = document.getElementById('custom-replies-list');
     if (!list) return;
     
-    var voiceList = window.voiceList || [];
-    if (voiceList.length === 0 && typeof customVoice !== 'undefined' && customVoice.length > 0) {
-        voiceList = customVoice;
-        window.voiceList = customVoice;
+    // ★★★ 去重：合并两个数组，按 url 去重 ★★★
+    var voiceMap = new Map();
+    if (window.voiceList && window.voiceList.length > 0) {
+        window.voiceList.forEach(function(item) {
+            if (item.url) voiceMap.set(item.url, item);
+        });
     }
-    
-    if (voiceList.length === 0) {
-        list.innerHTML = renderEmptyState('暂无语音，点击下方 + 新增');
-        return;
+    if (typeof customVoice !== 'undefined' && customVoice.length > 0) {
+        customVoice.forEach(function(item) {
+            if (item.url) voiceMap.set(item.url, item);
+        });
     }
+    var voiceList = Array.from(voiceMap.values());
+    // 同步回 window.voiceList
+    window.voiceList = voiceList;
     
     var html = '<div style="padding:8px 4px;">';
     voiceList.forEach(function(item, index) {
