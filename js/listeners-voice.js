@@ -233,6 +233,11 @@
             const duration = Number(bubble.dataset.duration) || 3;
             const msgId = bubble.dataset.msgId;
 
+            // ★★★ 调试：看看数据长什么样 ★★★
+            const msg = findMessage(msgId);
+            console.log('🔊 点击语音 - msg:', msg);
+            console.log('🔊 msg.voice:', msg ? msg.voice : '无');
+
             // ★★★ 新增：优先播放语音库的 MP3 ★★★
             const msg = findMessage(msgId);
             const voiceUrl = msg && msg.voice && msg.voice.url ? msg.voice.url : null;
