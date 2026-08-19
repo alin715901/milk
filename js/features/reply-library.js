@@ -2558,7 +2558,8 @@ function _renderVoiceTab(list) {
                     <span style="font-size:11px;color:var(--text-secondary);flex-shrink:0;">${duration}"</span>
                 </div>
                 <div class="rl-card-actions">
-                    <button class="rl-act-btn" onclick="window._voicePlay('${url}')" title="播放">▶</button>
+                    <button class="rl-act-btn" onclick="window._voicePlay('${url}', this)" title="播放">▶</button>
+                    <button class="rl-act-btn" onclick="window._voiceEdit(${index})" title="编辑">✏️</button>
                     <button class="rl-act-btn danger" onclick="window._voiceDelete(${index})" title="删除">✕</button>
                 </div>
             </div>
@@ -2687,19 +2688,38 @@ function _showVoiceAddDialog() {
 }
 
 // ─── 播放语音 ──────────────────────────────────────────────
-window._voicePlay = function(url) {
-    alert('播放函数被调用，URL: ' + url);
+window._voicePlay = function(url, btn) {
     if (!url) {
         alert('URL 为空');
         return;
     }
+    
+    // 如果当前正在播放，则暂停
+    if (window._currentAudio && !window._currentAudio.paused) {
+        window._currentAudio.pause();
+        if (btn) btn.textContent = '▶';
+        return;
+    }
+    
+    // 停止之前的音频
+    if (window._currentAudio) {
+        window._currentAudio.pause();
+        window._currentAudio = null;
+    }
+    
     var audio = new Audio(url);
-    audio.play().then(function() {
-        alert('播放成功');
-    }).catch(function(err) {
+    window._currentAudio = audio;
+    if (btn) btn.textContent = '⏸';
+    
+    audio.play().catch(function(err) {
         alert('播放失败: ' + err.message);
-        showNotification('无法播放该语音，请检查文件或链接', 'error');
+        if (btn) btn.textContent = '▶';
     });
+    
+    audio.onended = function() {
+        if (btn) btn.textContent = '▶';
+        window._currentAudio = null;
+    };
 };
 
 // ─── 删除语音 ──────────────────────────────────────────────
@@ -2720,3 +2740,24 @@ function _escapeHtml(text) {
     if (!text) return '';
     return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+
+window._voiceEdit = function(index) {
+    var voiceList = window.voiceList || [];
+    if (typeof customVoice !== 'undefined' && customVoice.length > 0) {
+        voiceList = customVoice;
+    }
+    var item = voiceList[index];
+    if (!item) return;
+    
+    var newLabel = prompt('修改语音名称:', item.label || '语音');
+    if (newLabel !== null) {
+        item.label = newLabel.trim() || '语音';
+        var newDuration = prompt('修改时长（秒）:', item.duration || 0);
+        if (newDuration !== null) {
+            item.duration = parseFloat(newDuration) || 0;
+        }
+        if (typeof throttledSaveData === 'function') throttledSaveData();
+        _renderVoiceTab(document.getElementById('custom-replies-list'));
+        showNotification('✓ 已更新', 'success');
+    }
+};
