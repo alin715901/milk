@@ -4360,7 +4360,9 @@ function initReplyLibraryListeners() {
     const entryBtn = document.getElementById('custom-replies-function');
     if (entryBtn) {
         entryBtn.addEventListener('click', () => {
-            hideModal(DOMElements.advancedModal.modal);
+            // 隐藏高级设置弹窗
+            var advModal = document.getElementById('advanced-modal');
+            if (advModal) advModal.style.display = 'none';
             currentMajorTab = 'reply';
             currentSubTab = 'custom';
             _batchModeActive = false;
@@ -4383,8 +4385,11 @@ function initReplyLibraryListeners() {
                 b.classList.toggle('active', b.dataset.major === 'reply');
             });
             renderReplyLibrary();
-            showModal(DOMElements.customRepliesModal.modal);
+            // 显示回复库弹窗
+            var modal = document.getElementById('custom-replies-modal');
+            if (modal) modal.style.display = 'flex';
         });
+      }
     }
 
     document.querySelectorAll('.sidebar-btn').forEach(btn => {
