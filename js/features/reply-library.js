@@ -2603,6 +2603,7 @@ function _showVoiceAddDialog() {
     });
     
     document.getElementById('voice-add-confirm').addEventListener('click', function() {
+        alert('添加按钮被点击了！');
         var fileInput = document.getElementById('voice-file-input');
         var urlInput = document.getElementById('voice-url-input');
         var labelInput = document.getElementById('voice-label-input');
