@@ -171,9 +171,8 @@
             wrapper.classList.add('has-voice');
 
             const duration = msg.voice.duration || 0;
-            const fakeText = msg.voice.fakeText || '';
+            const displayText = msg.voice.text || msg.voice.fakeText || '';  // ← 合并成一行
             const url = msg.voice.url || '';
-            const text = msg.voice.text || '';
             const widthPx = Math.round(80 + Math.min(duration, 60) / 60 * 120);
 
             bubble.innerHTML = `
@@ -188,7 +187,7 @@
                     </div>
                     <span class="voice-duration">${duration}"</span>
                 </div>
-                ${fakeText ? `<div class="voice-fake-text">${escapeHtml(fakeText)}</div>` : ''}
+                ${displayText ? `<div class="voice-fake-text">${escapeHtml(displayText)}</div>` : ''}
             `;
         }
         
