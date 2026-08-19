@@ -235,6 +235,38 @@
             const duration = Number(bubble.dataset.duration) || 3;
             const msgId = bubble.dataset.msgId;
 
+            // ── 优先判断：如果是语音库的语音（有真实 URL，但没有 fakeText），直接播放 MP3 ──
+            const msg = findMessage(msgId);
+            const voiceUrl = msg && msg.voice && msg.voice.url ? msg.voice.url : null;
+            if (voiceUrl && !msg.voice.fakeText) {
+                // 先停止当前播放
+                if (window._currentAudio) {
+                    window._currentAudio.pause();
+                    window._currentAudio = null;
+                }
+                if (currentBubble) {
+                    currentBubble.classList.remove('playing');
+                    currentBubble = null;
+                }
+                
+                const audio = new Audio(voiceUrl);
+                window._currentAudio = audio;
+                currentBubble = bubble;
+                bubble.classList.add('playing');
+                
+                audio.play().catch(() => {
+                    showNotification('语音播放失败，请检查链接', 'error');
+                    bubble.classList.remove('playing');
+                    if (currentBubble === bubble) currentBubble = null;
+                });
+                audio.onended = () => {
+                    bubble.classList.remove('playing');
+                    if (currentBubble === bubble) currentBubble = null;
+                    window._currentAudio = null;
+                };
+                return;
+            }
+            
             // ── 有 TTS 配置：走真实语音 ──
             if (window.voiceTTS && window.voiceTTS.isTtsReady() && msgId) {
                 const msg = findMessage(msgId);
