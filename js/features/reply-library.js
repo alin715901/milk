@@ -2302,6 +2302,11 @@ function initReplyLibraryListeners() {
                 }
                 return;
             }
+            // ★★★ 新增：语音分支 ★★★
+            if (currentSubTab === 'voice') {
+                _showVoiceAddDialog();
+                return;
+            }
             if (currentSubTab === 'custom' || currentSubTab === 'pokes' || currentSubTab === 'statuses') {
                 _showBatchAddDialog(); return;
             }
@@ -2503,28 +2508,14 @@ function applyAllAvatarFrames() {
     }
 }
 
-// ─── 语音模块 ──────────────────────────────────────────────────────────────
-// 数据存储
-if (typeof customVoice === 'undefined') window.customVoice = [];
-if (typeof customVoiceData === 'undefined') window.customVoiceData = [];
-
-// 语音列表渲染
 function _renderVoiceTab(list) {
     if (!list) list = document.getElementById('custom-replies-list');
     if (!list) return;
     
     var voiceList = customVoice || [];
-    var html = '';
     
-    
-// 渲染语音列表项
-function _renderVoiceListItems() {
-    var container = document.getElementById('voice-list-container');
-    if (!container) return;
-    
-    var voiceList = customVoice || [];
     if (voiceList.length === 0) {
-        container.innerHTML = '<div style="color:var(--text-secondary);font-size:13px;opacity:0.7;padding:20px 0;text-align:center;">暂无语音，点击上方添加</div>';
+        list.innerHTML = renderEmptyState('暂无语音，点击下方 + 新增');
         return;
     }
     
@@ -2534,123 +2525,18 @@ function _renderVoiceListItems() {
         var label = typeof item === 'string' ? item : (item.label || '语音');
         var duration = item.duration || 0;
         html += `
-            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border-color);">
-                <span style="font-size:18px;">🎵</span>
-                <span style="flex:1;font-size:13px;color:var(--text-primary);word-break:break-all;">${_escapeHtml(label)}</span>
-                <span style="font-size:11px;color:var(--text-secondary);flex-shrink:0;">${duration}"</span>
-                <button onclick="window._voicePlay('${url}')" style="padding:3px 10px;border:1px solid var(--border-color);border-radius:5px;background:transparent;cursor:pointer;font-size:11px;font-family:var(--font-family);flex-shrink:0;">▶</button>
-                <button onclick="window._voiceDelete(${index})" style="padding:3px 6px;border:none;background:transparent;color:#ff6b6b;cursor:pointer;font-size:14px;flex-shrink:0;">✕</button>
+            <div class="rl-card">
+                <div style="flex:1;min-width:0;display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:18px;">🎵</span>
+                    <span style="font-size:13px;color:var(--text-primary);word-break:break-all;">${_escapeHtml(label)}</span>
+                    <span style="font-size:11px;color:var(--text-secondary);flex-shrink:0;">${duration}"</span>
+                </div>
+                <div class="rl-card-actions">
+                    <button class="rl-act-btn" onclick="window._voicePlay('${url}')" title="播放">▶</button>
+                    <button class="rl-act-btn danger" onclick="window._voiceDelete(${index})" title="删除">✕</button>
+                </div>
             </div>
         `;
     });
-    container.innerHTML = html;
-}
-
-// 添加语音对话框
-function _showVoiceAddDialog() {
-    // 创建遮罩
-    var overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;';
-    
-    var panel = document.createElement('div');
-    panel.style.cssText = 'background:var(--secondary-bg);border-radius:16px;padding:24px;width:92%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.3);';
-    panel.innerHTML = `
-        <div style="font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:16px;">添加语音</div>
-        <div style="margin-bottom:12px;">
-            <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">上传 MP3 文件</label>
-            <input type="file" id="voice-file-input" accept="audio/mpeg,audio/mp3" style="width:100%;padding:8px;border:1px solid var(--border-color);border-radius:8px;background:var(--primary-bg);color:var(--text-primary);">
-        </div>
-        <div style="margin-bottom:12px;">
-            <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">或输入 URL 链接</label>
-            <input type="text" id="voice-url-input" placeholder="https://example.com/audio.mp3" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;background:var(--primary-bg);color:var(--text-primary);font-size:13px;font-family:var(--font-family);box-sizing:border-box;">
-        </div>
-        <div style="margin-bottom:12px;">
-            <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">语音名称（选填）</label>
-            <input type="text" id="voice-label-input" placeholder="例如：早安问候" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;background:var(--primary-bg);color:var(--text-primary);font-size:13px;font-family:var(--font-family);box-sizing:border-box;">
-        </div>
-        <div style="margin-bottom:16px;">
-            <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">时长（秒，选填）</label>
-            <input type="number" id="voice-duration-input" placeholder="3" min="0" step="0.5" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;background:var(--primary-bg);color:var(--text-primary);font-size:13px;font-family:var(--font-family);box-sizing:border-box;">
-        </div>
-        <div style="display:flex;gap:10px;">
-            <button id="voice-add-cancel" style="flex:1;padding:10px;border:1.5px solid var(--border-color);border-radius:10px;background:none;color:var(--text-secondary);cursor:pointer;font-size:13px;font-family:var(--font-family);">取消</button>
-            <button id="voice-add-confirm" style="flex:2;padding:10px;border:none;border-radius:10px;background:var(--accent-color);color:#fff;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--font-family);">添加</button>
-        </div>
-    `;
-    overlay.appendChild(panel);
-    document.body.appendChild(overlay);
-    
-    // 关闭遮罩
-    overlay.addEventListener('click', function(e) {
-        if (e.target === overlay) overlay.remove();
-    });
-    panel.querySelector('#voice-add-cancel').addEventListener('click', function() {
-        overlay.remove();
-    });
-    
-    // 确认添加
-    panel.querySelector('#voice-add-confirm').addEventListener('click', function() {
-        var fileInput = document.getElementById('voice-file-input');
-        var urlInput = document.getElementById('voice-url-input');
-        var labelInput = document.getElementById('voice-label-input');
-        var durationInput = document.getElementById('voice-duration-input');
-        
-        var url = urlInput.value.trim();
-        var label = labelInput.value.trim() || '语音';
-        var duration = parseFloat(durationInput.value) || 0;
-        
-        // 如果有文件，读取为 DataURL
-        if (fileInput.files && fileInput.files.length > 0) {
-            var file = fileInput.files[0];
-            if (file.size > 10 * 1024 * 1024) {
-                alert('文件不能超过 10MB');
-                return;
-            }
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                var base64 = e.target.result;
-                customVoice.push({ url: base64, label: label, duration: duration });
-                if (typeof throttledSaveData === 'function') throttledSaveData();
-                _renderVoiceListItems();
-                overlay.remove();
-                showNotification('✓ 语音已添加', 'success');
-            };
-            reader.readAsDataURL(file);
-            return;
-        }
-        
-        // 没有文件，用 URL
-        if (!url) {
-            alert('请选择文件或输入 URL');
-            return;
-        }
-        customVoice.push({ url: url, label: label, duration: duration });
-        if (typeof throttledSaveData === 'function') throttledSaveData();
-        _renderVoiceListItems();
-        overlay.remove();
-        showNotification('✓ 语音已添加', 'success');
-    });
-}
-
-// 播放语音
-window._voicePlay = function(url) {
-    if (!url) return;
-    var audio = new Audio(url);
-    audio.play().catch(function() {
-        showNotification('无法播放该语音，请检查文件或链接', 'error');
-    });
-};
-
-// 删除语音
-window._voiceDelete = function(index) {
-    if (!confirm('确定删除此语音吗？')) return;
-    customVoice.splice(index, 1);
-    if (typeof throttledSaveData === 'function') throttledSaveData();
-    _renderVoiceListItems();
-    showNotification('已删除', 'success');
-};
-
-function _escapeHtml(text) {
-    if (!text) return '';
-    return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    list.innerHTML = html;
 }
