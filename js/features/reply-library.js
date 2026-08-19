@@ -2642,7 +2642,7 @@ function _showVoiceAddDialog() {
     // 确保 customVoice 存在
     if (typeof customVoice === 'undefined') {
         window.customVoice = [];
-        alert('customVoice 已初始化');
+        // alert('customVoice 已初始化');
     }
     var overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;';
