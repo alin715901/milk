@@ -2565,7 +2565,12 @@ function _renderVoiceTab(list) {
 // ─── 语音添加对话框 ──────────────────────────────────────────────
 function _showVoiceAddDialog() {
     alert('1. 函数开始执行');
-    
+
+    // 确保 customVoice 存在
+    if (typeof customVoice === 'undefined') {
+        window.customVoice = [];
+        alert('customVoice 已初始化');
+    }
     var overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;';
     
