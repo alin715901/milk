@@ -197,9 +197,14 @@
         let currentBubble = null;
 
         function _stopCurrentAudio() {
+            // 同时清两个变量
+            if (window._currentAudio) {
+                window._currentAudio.pause();
+                window._currentAudio = null;
+            }
             if (_currentAudio) {
-                _currentAudio.pause();
-                _currentAudio = null;
+            _currentAudio.pause();
+            _currentAudio = null;
             }
             if (currentBubble) {
                 currentBubble.classList.remove('playing', 'tts-loading');
@@ -226,7 +231,16 @@
             if (bubble.classList.contains('tts-loading')) return;
 
             if (currentBubble === bubble && bubble.classList.contains('playing')) {
-                _stopCurrentAudio();
+                if (window._currentAudio) {
+                    window._currentAudio.pause();
+                    window._currentAudio = null;
+                }
+                if (_currentAudio) {
+                _currentAudio.pause();
+                _currentAudio = null;
+                }
+                bubble.classList.remove('playing');
+                currentBubble = null;
                 return;
             }
 
@@ -264,6 +278,7 @@
                     bubble.classList.remove('playing');
                     if (currentBubble === bubble) currentBubble = null;
                     window._currentAudio = null;
+                    _currentAudio = null;
                 };
                 return;
             }
