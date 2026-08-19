@@ -238,7 +238,7 @@
             const duration = Number(bubble.dataset.duration) || 3;
             const msgId = bubble.dataset.msgId;
 
-                // ── 优先判断：如果是语音库的语音（有真实 URL，但没有 fakeText），直接播放 MP3 ──
+            // ── 优先判断：如果是语音库的语音（有真实 URL，但没有 fakeText），直接播放 MP3 ──
             const msg = findMessage(msgId);
             const voiceUrl = msg && msg.voice && msg.voice.url ? msg.voice.url : null;
             if (voiceUrl && !msg.voice.fakeText) {
@@ -253,7 +253,7 @@
                     if (toggleBtn) toggleBtn.style.display = 'none';
                     return;
                 }
-
+    
                 // 停止之前的音频
                 if (window._currentAudio) {
                     window._currentAudio.pause();
