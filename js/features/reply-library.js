@@ -2545,32 +2545,135 @@ function _renderVoiceTab(list) {
         return;
     }
     
-    var html = '';
+    var html = '<div style="padding:8px 12px;">';
     voiceList.forEach(function(item, index) {
         var url = typeof item === 'string' ? item : (item.url || '');
         var label = typeof item === 'string' ? item : (item.label || '语音');
         var duration = item.duration || 0;
+        
+        // 进度条模拟（占位，后续可做成真实进度）
+        var progressBars = '';
+        for (var i = 0; i < 16; i++) {
+            var h = 20 + Math.floor(Math.random() * 50);
+            progressBars += `<div class="voice-wave-bar" style="height:${h}%;background:var(--accent-color);opacity:0.3;border-radius:2px;transition:opacity 0.2s;"></div>`;
+        }
+        
         html += `
-            <div class="rl-card">
-                <div style="flex:1;min-width:0;display:flex;align-items:center;gap:10px;">
-                    <span style="font-size:18px;">🎵</span>
-                    <span style="font-size:13px;color:var(--text-primary);word-break:break-all;">${_escapeHtml(label)}</span>
-                    <span style="font-size:11px;color:var(--text-secondary);flex-shrink:0;">${duration}"</span>
+            <div class="voice-item" style="
+                display:flex;
+                align-items:center;
+                gap:12px;
+                padding:10px 14px;
+                margin-bottom:8px;
+                border-radius:12px;
+                background:var(--secondary-bg);
+                border:1px solid var(--border-color);
+                transition:all 0.2s;
+                cursor:default;
+            ">
+                <!-- 语音图标 -->
+                <div style="
+                    width:36px;
+                    height:36px;
+                    border-radius:50%;
+                    background:var(--accent-color);
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    color:#fff;
+                    font-size:16px;
+                    flex-shrink:0;
+                ">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 18h5l4-4V6l-4 4H3v8z"/>
+                        <path d="M17 8a5 5 0 010 8"/>
+                        <path d="M21 4a9 9 0 010 16"/>
+                    </svg>
                 </div>
-                <div class="rl-card-actions">
-                    <button class="rl-act-btn" onclick="window._voicePlay('${url}', this)" title="播放">▶</button>
-                    <button class="rl-act-btn" onclick="window._voiceEdit(${index})" title="编辑">✏️</button>
-                    <button class="rl-act-btn danger" onclick="window._voiceDelete(${index})" title="删除">✕</button>
+                
+                <!-- 中间：名称 + 时长 + 波形 -->
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:14px;font-weight:500;color:var(--text-primary);">${_escapeHtml(label)}</div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
+                        <span style="font-size:11px;color:var(--text-secondary);opacity:0.7;">${duration}"</span>
+                        <div style="display:flex;align-items:center;gap:2px;height:20px;flex:1;max-width:120px;">
+                            ${progressBars}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 右侧：播放、编辑、删除 -->
+                <div style="display:flex;gap:4px;flex-shrink:0;">
+                    <button class="voice-play-btn" onclick="window._voicePlay('${url}', this)" 
+                        style="
+                            width:34px;
+                            height:34px;
+                            border-radius:50%;
+                            border:1.5px solid var(--accent-color);
+                            background:var(--accent-color);
+                            color:#fff;
+                            cursor:pointer;
+                            font-size:14px;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            transition:all 0.2s;
+                        "
+                        onmouseover="this.style.transform='scale(1.08)'"
+                        onmouseout="this.style.transform='scale(1)'"
+                        title="播放"
+                    >▶</button>
+                    
+                    <button class="voice-edit-btn" onclick="window._voiceEdit(${index})" 
+                        style="
+                            width:34px;
+                            height:34px;
+                            border-radius:50%;
+                            border:1px solid var(--border-color);
+                            background:var(--primary-bg);
+                            color:var(--text-secondary);
+                            cursor:pointer;
+                            font-size:13px;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            transition:all 0.2s;
+                        "
+                        onmouseover="this.style.borderColor='var(--accent-color)';this.style.color='var(--accent-color)'"
+                        onmouseout="this.style.borderColor='var(--border-color)';this.style.color='var(--text-secondary)'"
+                        title="编辑"
+                    >✏️</button>
+                    
+                    <button class="voice-delete-btn" onclick="window._voiceDelete(${index})" 
+                        style="
+                            width:34px;
+                            height:34px;
+                            border-radius:50%;
+                            border:1px solid rgba(239,68,68,0.3);
+                            background:transparent;
+                            color:#ef4444;
+                            cursor:pointer;
+                            font-size:14px;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            transition:all 0.2s;
+                        "
+                        onmouseover="this.style.background='rgba(239,68,68,0.1)';this.style.transform='scale(1.08)'"
+                        onmouseout="this.style.background='transparent';this.style.transform='scale(1)'"
+                        title="删除"
+                    >✕</button>
                 </div>
             </div>
         `;
     });
+    html += '</div>';
     list.innerHTML = html;
 }
 
 // ─── 语音添加对话框 ──────────────────────────────────────────────
 function _showVoiceAddDialog() {
-    alert('1. 函数开始执行');
+    // alert('1. 函数开始执行');
 
     // 确保 customVoice 存在
     if (typeof customVoice === 'undefined') {
@@ -2616,7 +2719,7 @@ function _showVoiceAddDialog() {
     });
     
     document.getElementById('voice-add-confirm').addEventListener('click', function() {
-        alert('2. 添加按钮被点击');
+        // alert('2. 添加按钮被点击');
         
         var fileInput = document.getElementById('voice-file-input');
         var urlInput = document.getElementById('voice-url-input');
@@ -2628,7 +2731,7 @@ function _showVoiceAddDialog() {
         var duration = parseFloat(durationInput.value) || 0;
         
         if (fileInput.files && fileInput.files.length > 0) {
-            alert('3. 有文件，开始读取');
+            // alert('3. 有文件，开始读取');
             var file = fileInput.files[0];
             if (file.size > 10 * 1024 * 1024) {
                 alert('文件不能超过 10MB');
@@ -2636,17 +2739,17 @@ function _showVoiceAddDialog() {
             }
             var reader = new FileReader();
             reader.onload = function(e) {
-                alert('4. 文件读取完成');
+                // alert('4. 文件读取完成');
                 var base64 = e.target.result;
     
                 // 确保 voiceList 存在
                 if (typeof window.voiceList === 'undefined') {
                     window.voiceList = [];
-                    alert('voiceList 已初始化');
+                    // alert('voiceList 已初始化');
                 }
     
                 window.voiceList.push({ url: base64, label: label, duration: duration });
-                alert('5. push 完成，当前数量: ' + window.voiceList.length);
+                // alert('5. push 完成，当前数量: ' + window.voiceList.length);
     
                 // 同时同步到 customVoice
                 if (typeof customVoice !== 'undefined') {
@@ -2655,21 +2758,21 @@ function _showVoiceAddDialog() {
     
                 if (typeof throttledSaveData === 'function') throttledSaveData();
                 // _renderVoiceTab(document.getElementById('custom-replies-list'));
-                alert('6. 渲染完成');
+                // alert('6. 渲染完成');
                 overlay.remove();
                 showNotification('✓ 语音已添加', 'success');
-                alert('7. 全部完成');
+                // alert('7. 全部完成');
             };
             reader.readAsDataURL(file);
             return;
         }
         
         if (!url) {
-            alert('请选择文件或输入 URL');
+            // alert('请选择文件或输入 URL');
             return;
         }
         
-        alert('3. 使用 URL 添加');
+        // alert('3. 使用 URL 添加');
         if (typeof window.voiceList === 'undefined') {
             window.voiceList = [];
         }
@@ -2677,13 +2780,13 @@ function _showVoiceAddDialog() {
         if (typeof customVoice !== 'undefined') {
             customVoice.push({ url: url, label: label, duration: duration });
         }
-        alert('4. URL push 完成，当前数量: ' + customVoice.length);
+        // alert('4. URL push 完成，当前数量: ' + customVoice.length);
         if (typeof throttledSaveData === 'function') throttledSaveData();
         _renderVoiceTab(document.getElementById('custom-replies-list'));
-        alert('5. URL 渲染完成');
+        // alert('5. URL 渲染完成');
         overlay.remove();
         showNotification('✓ 语音已添加', 'success');
-        alert('6. URL 全部完成');
+        // alert('6. URL 全部完成');
     });
 }
 
