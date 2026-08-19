@@ -298,6 +298,16 @@
                 const textToSpeak = msg && msg.voice && msg.voice.fakeText ? msg.voice.fakeText : null;
 
                 if (textToSpeak) {
+                    // ★★★ 新增：先暂停正在播放的语音库语音 ★★★
+                    if (window._currentAudio) {
+                        window._currentAudio.pause();
+                        window._currentAudio = null;
+                    }
+                    if (currentBubble) {
+                        currentBubble.classList.remove('playing');
+                        currentBubble = null;
+                    }
+
                     currentBubble = bubble;
                     bubble.classList.add('tts-loading');
 
