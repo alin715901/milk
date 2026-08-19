@@ -2667,6 +2667,10 @@ function _showVoiceAddDialog() {
             <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">时长（秒，选填）</label>
             <input type="number" id="voice-duration-input" placeholder="3" min="0" step="0.5" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;background:var(--primary-bg);color:var(--text-primary);font-size:13px;font-family:var(--font-family);box-sizing:border-box;">
         </div>
+        <div style="margin-bottom:16px;">
+            <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">文字内容（转文字用，选填）</label>
+            <input type="text" id="voice-text-input" placeholder="语音对应的文字内容" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;background:var(--primary-bg);color:var(--text-primary);font-size:13px;font-family:var(--font-family);box-sizing:border-box;">
+        </div>
         <div style="display:flex;gap:10px;">
             <button id="voice-add-cancel" style="flex:1;padding:10px;border:1.5px solid var(--border-color);border-radius:10px;background:none;color:var(--text-secondary);cursor:pointer;font-size:13px;font-family:var(--font-family);">取消</button>
             <button id="voice-add-confirm" style="flex:2;padding:10px;border:none;border-radius:10px;background:var(--accent-color);color:#fff;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--font-family);">添加</button>
@@ -2693,6 +2697,7 @@ function _showVoiceAddDialog() {
         var url = urlInput.value.trim();
         var label = labelInput.value.trim() || '语音';
         var duration = parseFloat(durationInput.value) || 0;
+        var textContent = document.getElementById('voice-text-input').value.trim() || '';
         
         if (fileInput.files && fileInput.files.length > 0) {
             // alert('3. 有文件，开始读取');
@@ -2712,12 +2717,12 @@ function _showVoiceAddDialog() {
                     // alert('voiceList 已初始化');
                 }
     
-                window.voiceList.push({ url: base64, label: label, duration: duration });
+                window.voiceList.push({ url: base64, label: label, duration: duration, text: textContent });
                 // alert('5. push 完成，当前数量: ' + window.voiceList.length);
     
                 // 同时同步到 customVoice
                 if (typeof customVoice !== 'undefined') {
-                    customVoice.push({ url: base64, label: label, duration: duration });
+                    customVoice.push({ url: base64, label: label, duration: duration, text: textContent });
                 }
     
                 if (typeof throttledSaveData === 'function') throttledSaveData();
