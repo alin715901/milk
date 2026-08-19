@@ -2760,7 +2760,7 @@ function _showVoiceAddDialog() {
 }
 
 // ─── 播放语音 ──────────────────────────────────────────────
-window._voicePlay = function(url, btn) {
+window._voicePlay = function(url, btn, msgId) {
     if (!url) {
         alert('URL 为空');
         return;
@@ -2782,6 +2782,10 @@ window._voicePlay = function(url, btn) {
     var audio = new Audio(url);
     window._currentAudio = audio;
     if (btn) btn.textContent = '⏸';
+
+    // ★★★ 播放时显示“转”按钮 ★★★
+    const toggleBtnPlay = document.querySelector(`.voice-text-toggle[data-msg-id="${msgId}"]`);
+    if (toggleBtnPlay) toggleBtnPlay.style.display = 'flex';
     
     audio.play().catch(function(err) {
         alert('播放失败: ' + err.message);
@@ -2791,6 +2795,18 @@ window._voicePlay = function(url, btn) {
     audio.onended = function() {
         if (btn) btn.textContent = '▶';
         window._currentAudio = null;
+        // ★★★ 播放结束后隐藏“转”按钮 ★★★
+        const toggleBtnEnd = document.querySelector(`.voice-text-toggle[data-msg-id="${msgId}"]`);
+        if (toggleBtnEnd) {
+            toggleBtnEnd.style.display = 'none';
+            const textContentEnd = document.querySelector(`.voice-text-content[data-msg-id="${msgId}"]`);
+            if (textContentEnd) {
+                textContentEnd.style.display = 'none';
+                toggleBtnEnd.textContent = '转';
+                toggleBtnEnd.style.color = 'var(--text-secondary)';
+                toggleBtnEnd.style.borderColor = 'var(--border-color)';
+            }
+        }
     };
 };
 
