@@ -381,15 +381,11 @@
 
         // ─────────── 对方文本消息 → 从语音库随机选一条语音 ───────────
         function maybeFakeVoiceForPartner(wrapper) {
-            // ★★★ 加强判断：必须是 received，并且 sender 是 partner ★★★
             if (!wrapper.classList.contains('received')) return;
-    
             const msgId = wrapper.dataset.msgId || wrapper.dataset.id;
             if (!msgId) return;
             const msg = findMessage(msgId);
             if (!msg) return;
-    
-            // ★★★ 额外检查：确保是对方发的消息 ★★★
             if (msg.sender !== 'partner') return;
             if (msg.voice || msg.image || msg.type === 'system') return;
             if (!msg.text || !msg.text.trim()) return;
@@ -399,9 +395,10 @@
             if (!_isFakeVoiceOn()) return;
             if (Math.random() >= FAKE_VOICE_PROBABILITY) return;
 
-            // 从语音库随机选一条
-            var voiceList = window.voiceList || [];
+            // ★★★ 从 customVoice 读取语音库数据 ★★★
+            var voiceList = window.customVoice || [];
             if (voiceList.length === 0) {
+                // 没有语音库，走原来的伪语音逻辑
                 const textLen = msg.text.trim().length;
                 const duration = Math.max(1, Math.floor(textLen / 3) + Math.floor(Math.random() * 4));
                 msg.voice = { url: '', duration: duration, fakeText: msg.text, transcript: '' };
@@ -410,16 +407,27 @@
                 return;
             }
 
+            // 从语音库随机选一条
             var randomVoice = voiceList[Math.floor(Math.random() * voiceList.length)];
             if (randomVoice) {
+                // ★★★ 调试：打印看看取到的数据 ★★★
+                console.log('🎤 选中语音:', randomVoice);
+                console.log('📝 文字内容:', randomVoice.text);
+        
+                // ★★★ 关键：把文字传给 msg.voice.text ★★★
+                var displayText = randomVoice.text || msg.text;
+        
                 msg.voice = {
                     url: randomVoice.url,
                     duration: randomVoice.duration || 3,
-                    text: randomVoice.text || msg.text,
+                    text: displayText,  // ← 这里必须有值
                     label: randomVoice.label || '语音'
                 };
-                msg.text = '';
+                msg.text = '';  // 清空原文字
                 if (typeof throttledSaveData === 'function') throttledSaveData();
+        
+                // ★★★ 调试：打印生成的消息 ★★★
+                console.log('✅ 生成的语音消息:', msg.voice);
             }
         }
 })();
