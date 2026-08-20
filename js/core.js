@@ -1665,7 +1665,7 @@ if (!isBatchMode && type === 'normal') {
                            sender: settings.partnerName || '对方',
                            text: '',
                            timestamp: new Date(),
-                           voice: { url: url, duration: duration, fakeText: '' },
+                           voice: { url: url, duration: duration,text: displayText, fakeText: '' },
                            type: 'normal'
                         });
                         if (typeof window._sendPartnerNotification === 'function') {
