@@ -386,6 +386,7 @@
             if (!msgId) return;
             const msg = findMessage(msgId);
             if (!msg) return;
+            console.log('🔍 找到的消息:', msg.id, 'sender:', msg.sender, 'text:', msg.text);
             if (msg.sender !== 'partner') return;
             if (msg.voice || msg.image || msg.type === 'system') return;
             if (!msg.text || !msg.text.trim()) return;
