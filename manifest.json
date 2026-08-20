@@ -12,17 +12,14 @@
     {
       "src": "https://file.youtochat.com/images/20260216/1771224856844_qdqqd.jpeg",
       "type": "image/png",
-      "sizes": "192x192",
-      "isSquare": true,
-      "isPng": true,
-      "isWebp": false,
-      "isJpg": true,
-      "width": 192,
-      "is512x512": false,
-      "is256x256": false,
-      "is192x192": true
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://file.youtochat.com/images/20260216/1771224856844_qdqqd.jpeg",
+      "type": "image/png",
+      "sizes": "512x512"
     }
-  ],
+  ]
   "id": "lovechat",
   "description": "一个充满爱与温暖的传讯平台，让你与梦角随时保持联系。",
   "lang": "zh",
