@@ -379,56 +379,56 @@
         }
     });
 
-        // ─────────── 对方文本消息 → 从语音库随机选一条语音 ───────────
-        function maybeFakeVoiceForPartner(wrapper) {
-            if (!wrapper.classList.contains('received')) return;
-            const msgId = wrapper.dataset.msgId || wrapper.dataset.id;
-            if (!msgId) return;
-            const msg = findMessage(msgId);
-            if (!msg) return;
-            console.log('🔍 找到的消息:', msg.id, 'sender:', msg.sender, 'text:', msg.text);
-            if (msg.sender !== 'partner') return;
-            if (msg.voice || msg.image || msg.type === 'system') return;
-            if (!msg.text || !msg.text.trim()) return;
-            if (msg._fakeVoiceConsidered) return;
-            msg._fakeVoiceConsidered = true;
+       // ─────────── 对方文本消息 → 从语音库随机选一条语音 ───────────
+       function maybeFakeVoiceForPartner(wrapper) {
+           // 1. 必须是对方消息（received）
+           if (!wrapper.classList.contains('received')) return;
+    
+           const msgId = wrapper.dataset.msgId || wrapper.dataset.id;
+           if (!msgId) return;
+           const msg = findMessage(msgId);
+           if (!msg) return;
+    
+           // 2. 只处理对方（partner）的消息
+           if (msg.sender !== 'partner') return;
+    
+           // 3. 已经带语音的、图片的、系统消息不处理
+           if (msg.voice || msg.image || msg.type === 'system') return;
+           if (!msg.text || !msg.text.trim()) return;
+    
+           // 4. 避免重复处理
+           if (msg._fakeVoiceConsidered) return;
+           msg._fakeVoiceConsidered = true;
 
-            if (!_isFakeVoiceOn()) return;
-            if (Math.random() >= FAKE_VOICE_PROBABILITY) return;
+           // 5. 语音开关和概率
+           if (!_isFakeVoiceOn()) return;
+           if (Math.random() >= FAKE_VOICE_PROBABILITY) return;
 
-            // ★★★ 从 customVoice 读取语音库数据 ★★★
-            var voiceList = window.customVoice || [];
-            if (voiceList.length === 0) {
-                // 没有语音库，走原来的伪语音逻辑
-                const textLen = msg.text.trim().length;
-                const duration = Math.max(1, Math.floor(textLen / 3) + Math.floor(Math.random() * 4));
-                msg.voice = { url: '', duration: duration, fakeText: msg.text, transcript: '' };
-                msg.text = '';
-                if (typeof throttledSaveData === 'function') throttledSaveData();
-                return;
-            }
+           // 6. 从语音库取数据
+           var voiceList = window.customVoice || [];
+           if (voiceList.length === 0) {
+               // 没有语音库，走伪语音
+               const textLen = msg.text.trim().length;
+               const duration = Math.max(1, Math.floor(textLen / 3) + Math.floor(Math.random() * 4));
+               msg.voice = { url: '', duration: duration, fakeText: msg.text, transcript: '' };
+               msg.text = '';
+               if (typeof throttledSaveData === 'function') throttledSaveData();
+            return;
+           }
 
-            // 从语音库随机选一条
-            var randomVoice = voiceList[Math.floor(Math.random() * voiceList.length)];
-            if (randomVoice) {
-                // ★★★ 调试：打印看看取到的数据 ★★★
-                console.log('🎤 选中语音:', randomVoice);
-                console.log('📝 文字内容:', randomVoice.text);
-        
-                // ★★★ 关键：把文字传给 msg.voice.text ★★★
-                var displayText = randomVoice.text || msg.text;
-        
-                msg.voice = {
-                    url: randomVoice.url,
-                    duration: randomVoice.duration || 3,
-                    text: displayText,  // ← 这里必须有值
-                    label: randomVoice.label || '语音'
-                };
-                msg.text = '';  // 清空原文字
-                if (typeof throttledSaveData === 'function') throttledSaveData();
-        
-                // ★★★ 调试：打印生成的消息 ★★★
-                console.log('✅ 生成的语音消息:', msg.voice);
-            }
-        }
+           // 7. 随机选一条语音
+           var randomVoice = voiceList[Math.floor(Math.random() * voiceList.length)];
+           if (!randomVoice) return;
+
+           // 8. 生成语音消息
+           var displayText = randomVoice.text || msg.text;
+           msg.voice = {
+               url: randomVoice.url,
+               duration: randomVoice.duration || 3,
+               text: displayText,
+               label: randomVoice.label || '语音'
+           };
+           msg.text = '';
+           if (typeof throttledSaveData === 'function') throttledSaveData();
+       }
 })();
