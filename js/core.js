@@ -452,7 +452,7 @@ const LIBRARY_CONFIG = {
         tabs: [
             { id: 'custom', name: '主字卡', mode: 'list' },
             { id: 'emojis', name: 'Emoji', mode: 'grid' },
-            { id: 'stickers', name: '表情库', mode: 'grid' }
+            { id: 'stickers', name: '表情库', mode: 'grid' },
             { id: 'voice', name: '语音', mode: 'voice' }  // ★★★ 加上这行 ★★★
         ]
     },
