@@ -13,11 +13,14 @@
       "src": "https://file.youtochat.com/images/20260216/1771224856844_qdqqd.jpeg",
       "type": "image/png",
       "sizes": "192x192"
-    },
-    {
-      "src": "https://file.youtochat.com/images/20260216/1771224856844_qdqqd.jpeg",
-      "type": "image/png",
-      "sizes": "512x512"
+      "isSquare": true,
+      "isPng": true,
+      "isWebp": false,
+      "isJpg": true,
+      "width": 192,
+      "is512×512": false,
+      "is256×256": false,
+      "is192×192": true
     }
   ]
   "id": "lovechat",
