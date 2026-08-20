@@ -342,15 +342,5 @@ setTimeout(async function() {
     }
 }, 3000);
 
-// ─── 系统通知（纯前端，不需要 OneSignal） ───
-let lastMsgCount = 0;
 
-// 请求通知权限
-setTimeout(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-        Notification.requestPermission().then(permission => {
-            console.log('通知权限:', permission);
-        });
-    }
-}, 3000);
 
