@@ -293,35 +293,87 @@ window.addEventListener('load', function() {
     }, 4500);
 }, { once: true });
 
-// ─── 兼容所有浏览器的通知 ───
-function sendNotification(title, body) {
-    // 方法1: 标准 Notification API
-    if ('Notification' in window && Notification.permission === 'granted') {
-        try {
-            new Notification(title, { body: body, icon: 'icon.png' });
-            return true;
-        } catch(e) {
-            console.warn('Notification API 失败:', e);
+// ─── 独立通知系统（不依赖 Webtoapp） ───
+(function() {
+    // 1. 检查支持
+    if (!('Notification' in window)) {
+        console.log('❌ 浏览器不支持通知');
+        return;
+    }
+
+    // 2. 请求权限
+    function requestPermission() {
+        Notification.requestPermission().then(function(permission) {
+            console.log('📢 通知权限:', permission);
+            if (permission === 'granted') {
+                localStorage.setItem('notifEnabled', '1');
+                // 发送测试通知
+                try {
+                    new Notification('✅ 通知已开启', {
+                        body: '收到消息时会提醒你',
+                        icon: 'icon.png'
+                    });
+                } catch(e) {}
+            } else {
+                localStorage.setItem('notifEnabled', '0');
+            }
+        });
+    }
+
+    // 3. 页面加载时自动请求
+    setTimeout(function() {
+        if (Notification.permission === 'default') {
+            requestPermission();
         }
-    }
-    
-    // 方法2: 用 alert 或自定义弹窗作为降级方案
-    if (typeof showNotification === 'function') {
-        showNotification(title + ': ' + body, 'info', 5000);
-        return true;
-    }
-    
-    // 方法3: 什么都不支持，控制台打印
-    console.log('📢 通知:', title, '-', body);
-    return false;
-}
+    }, 3000);
 
-// 使用
-if (newMsg && newMsg.sender === 'partner') {
-    sendNotification(
-        (settings.partnerName || '对方') + ' 发来消息',
-        newMsg.text || '语音'
-    );
-}
+    // 4. 发送通知函数（全局可用）
+    window.sendNotif = function(title, body) {
+        if (Notification.permission === 'granted') {
+            try {
+                var n = new Notification(title || '传讯', {
+                    body: body || '有新消息',
+                    icon: 'icon.png',
+                    vibrate: [200, 100, 200],
+                    tag: 'msg-' + Date.now(),
+                    requireInteraction: true
+                });
+                setTimeout(function() { n.close(); }, 8000);
+                return true;
+            } catch(e) {
+                console.warn('通知失败:', e);
+                return false;
+            }
+        } else {
+            console.log('权限状态:', Notification.permission);
+            return false;
+        }
+    };
 
+    // 5. 监听新消息
+    var lastCount = 0;
+    setInterval(function() {
+        if (typeof messages === 'undefined') return;
+        if (messages.length > lastCount && lastCount > 0) {
+            var msg = messages[messages.length - 1];
+            if (msg && msg.sender === 'partner') {
+                var title = (settings.partnerName || '对方') + ' 发来消息';
+                var body = msg.text || (msg.voice ? '🎤 语音消息' : '');
+                window.sendNotif(title, body);
+            }
+        }
+        lastCount = messages.length;
+    }, 3000);
+
+    // 6. 暴露手动测试函数
+    window.testNotif = function() {
+        if (Notification.permission === 'granted') {
+            window.sendNotif('测试通知', '通知功能正常');
+        } else {
+            requestPermission();
+        }
+    };
+
+    console.log('✅ 通知系统已加载');
+})()
 
