@@ -7,21 +7,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <link rel="manifest" href="manifest.json">
-    <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/milk/sw.js')
-            .then(function(reg) {
-                console.log('✅ Service Worker 注册成功');
-                if ('Notification' in window && Notification.permission === 'default') {
-                    Notification.requestPermission();
-                }
-            })
-            .catch(function(err) {
-                console.error('❌ Service Worker 注册失败:', err);
-            });
-    }
-    </script>
 
     <title>传讯</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
