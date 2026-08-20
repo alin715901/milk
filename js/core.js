@@ -1636,6 +1636,11 @@ if (!isBatchMode && type === 'normal') {
                     var randomVoice = voiceList[Math.floor(Math.random() * voiceList.length)];
                     var url = typeof randomVoice === 'string' ? randomVoice : (randomVoice.url || '');
                     var duration = randomVoice.duration || 3;
+
+                    // ★★★ 加这两行调试 ★★★
+                    console.log('🎤 randomVoice:', randomVoice);
+                    console.log('📝 randomVoice.text:', randomVoice.text); 
+                        
                     if (url) {
                         // 隐藏“正在输入”
                         (function() {
