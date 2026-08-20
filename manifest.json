@@ -17,12 +17,12 @@
   ],
   "icons": [
     {
-      "src": "https://file.youtochat.com/images/20260216/1771224856844_qdqqd.jpeg",
+      "src": "icon.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "https://file.youtochat.com/images/20260216/1771224856844_qdqqd.jpeg",
+      "src": "icon.png",
       "type": "image/png",
       "sizes": "512x512"
     }
