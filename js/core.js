@@ -1410,33 +1410,6 @@ const addMessage = (message) => {
                     return;
                 }
             }
-
-           // ─── 梦角有概率发送语音 ───
-           if (type === 'normal') {
-               const voiceList = typeof customVoice !== 'undefined' ? customVoice : [];
-               if (voiceList.length > 0 && Math.random() < 0.15) {
-                   const randomVoice = voiceList[Math.floor(Math.random() * voiceList.length)];
-                   const url = typeof randomVoice === 'string' ? randomVoice : (randomVoice.url || '');
-                   const duration = randomVoice.duration || 3;
-                   if (url) {
-                       addMessage({
-                               id: Date.now(),
-                               sender: 'partner',
-                               text: '',
-                               timestamp: new Date(),
-                               voice: { url: url, duration: duration, fakeText: '' },
-                               type: 'normal'
-                       });
-                       playSound('partner_message');
-                       // 清空输入框并更新UI
-                       DOMElements.messageInput.value = '';
-                       DOMElements.messageInput.style.height = '46px';
-                       currentReplyTo = null;
-                       updateReplyPreview();
-                       return;
-                   }
-               }
-            }
                 
             DOMElements.messageInput.value = '';
             DOMElements.messageInput.style.height = '46px';
