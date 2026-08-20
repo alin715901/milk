@@ -3266,21 +3266,3 @@ window.exitCollapseMode = function() {
     }
 })();
 
-// ─── 模拟回复 ──────────────────────────────────────────────
-function simulateReply() {
-    if (typeof getRandomReply === 'function') {
-        var reply = getRandomReply();
-        if (reply) {
-            addMessage({
-                id: Date.now(),
-                sender: 'partner',
-                text: reply,
-                timestamp: new Date(),
-                type: 'normal'
-            });
-            playSound('receive');
-            throttledSaveData();
-            renderMessages(true);
-        }
-    }
-}
