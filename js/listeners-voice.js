@@ -382,6 +382,9 @@
        // ─────────── 对方文本消息 → 从语音库随机选一条语音 ───────────
        function maybeFakeVoiceForPartner(wrapper) {
            // 1. 必须是对方消息（received）
+           console.log('🔍 wrapper.dataset.id:', wrapper.dataset.id);
+           console.log('🔍 findMessage 返回:', msg);
+           console.log('🔍 msg.sender:', msg ? msg.sender : 'undefined');
            if (!wrapper.classList.contains('received')) return;
     
            const msgId = wrapper.dataset.msgId || wrapper.dataset.id;
