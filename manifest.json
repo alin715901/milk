@@ -18,12 +18,12 @@
   "icons": [
     {
       "src": "icon.png",
-      "type": "image/png",
+      "type": "image/jpeg",
       "sizes": "192x192"
     },
     {
       "src": "icon.png",
-      "type": "image/png",
+      "type": "image/jpeg",
       "sizes": "512x512"
     }
   ]
