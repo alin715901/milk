@@ -425,7 +425,7 @@
            msg.voice = {
                url: randomVoice.url,
                duration: randomVoice.duration || 3,
-               text: displayText,
+               text: randomVoice.text || msg.text,  // ← 这里必须读 randomVoice.text
                label: randomVoice.label || '语音'
            };
            msg.text = '';
