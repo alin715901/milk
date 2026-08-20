@@ -1,33 +1,30 @@
 {
-  "background_color": "#ffffff",
+  "background_color": "#0d0d14",
   "dir": "ltr",
   "display": "standalone",
-  "name": "Alin",
+  "name": "传讯",
   "orientation": "any",
   "scope": "/",
-  "short_name": "Alin",
+  "short_name": "传讯",
   "start_url": "/",
-  "theme_color": "#ffffff",
-  "icons": [
-    {
-      "src": "https://file.youtochat.com/images/20260216/1771224856844_qdqqd.jpeg",
-      "type": "image/png",
-      "sizes": "192x192"
-      "isSquare": true,
-      "isPng": true,
-      "isWebp": false,
-      "isJpg": true,
-      "width": 192,
-      "is512×512": false,
-      "is256×256": false,
-      "is192×192": true
-    }
-  ]
+  "theme_color": "#c5a47e",
   "id": "lovechat",
   "description": "一个充满爱与温暖的传讯平台，让你与梦角随时保持联系。",
   "lang": "zh",
   "categories": [
     "dating",
     "social networking"
+  ],
+  "icons": [
+    {
+      "src": "https://file.youtochat.com/images/20260216/1771224856844_qdqqd.jpeg",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://file.youtochat.com/images/20260216/1771224856844_qdqqd.jpeg",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
   ]
 }
