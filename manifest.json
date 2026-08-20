@@ -1,0 +1,33 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Alin",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Alin",
+  "start_url": "/",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "https://file.youtochat.com/images/20260216/1771224856844_qdqqd.jpeg",
+      "type": "image/png",
+      "sizes": "192x192",
+      "isSquare": true,
+      "isPng": true,
+      "isWebp": false,
+      "isJpg": true,
+      "width": 192,
+      "is512x512": false,
+      "is256x256": false,
+      "is192x192": true
+    }
+  ],
+  "id": "lovechat",
+  "description": "一个充满爱与温暖的传讯平台，让你与梦角随时保持联系。",
+  "lang": "zh",
+  "categories": [
+    "dating",
+    "social networking"
+  ]
+}
