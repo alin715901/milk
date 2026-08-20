@@ -1640,6 +1640,10 @@ if (!isBatchMode && type === 'normal') {
                     // ★★★ 加这两行调试 ★★★
                     console.log('🎤 randomVoice:', randomVoice);
                     console.log('📝 randomVoice.text:', randomVoice.text); 
+
+                    // ★★★ 关键：displayText 必须定义在 addMessage 之前 ★★★
+                    var displayText = randomVoice.text || '语音消息';
+                    console.log('📝 displayText:', displayText);
                         
                     if (url) {
                         // 隐藏“正在输入”
