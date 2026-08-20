@@ -293,54 +293,35 @@ window.addEventListener('load', function() {
     }, 4500);
 }, { once: true });
 
-// ─── 系统通知 ──────────────────────────────────────────────
-let lastMsgCount = 0;
-
-function checkNewMessages() {
-    if (typeof messages === 'undefined' || !messages) return;
-    const currentCount = messages.length;
-    if (currentCount > lastMsgCount && lastMsgCount > 0) {
-        const newMsg = messages[currentCount - 1];
-        if (newMsg && newMsg.sender === 'partner') {
-            const partnerName = settings.partnerName || '对方';
-            const bodyText = newMsg.voice ? '🎤 语音消息' : (newMsg.text || '新消息');
-            if (Notification.permission === 'granted') {
-                try {
-                    const notification = new Notification(partnerName + ' 发来新消息', {
-                        body: bodyText,
-                        icon: 'icon.png',
-                        vibrate: [200, 100, 200],
-                        tag: 'partner-msg-' + newMsg.id,
-                        requireInteraction: true
-                    });
-                    notification.onclick = function() {
-                        window.focus();
-                        notification.close();
-                    };
-                    setTimeout(function() { notification.close(); }, 8000);
-                } catch(e) {
-                    console.warn('通知发送失败:', e);
-                }
-            }
+// ─── 兼容所有浏览器的通知 ───
+function sendNotification(title, body) {
+    // 方法1: 标准 Notification API
+    if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+            new Notification(title, { body: body, icon: 'icon.png' });
+            return true;
+        } catch(e) {
+            console.warn('Notification API 失败:', e);
         }
     }
-    lastMsgCount = currentCount;
+    
+    // 方法2: 用 alert 或自定义弹窗作为降级方案
+    if (typeof showNotification === 'function') {
+        showNotification(title + ': ' + body, 'info', 5000);
+        return true;
+    }
+    
+    // 方法3: 什么都不支持，控制台打印
+    console.log('📢 通知:', title, '-', body);
+    return false;
 }
 
-setInterval(checkNewMessages, 3000);
-
-setTimeout(async function() {
-    if ('Notification' in window && Notification.permission === 'default') {
-        try {
-            const permission = await Notification.requestPermission();
-            if (permission === 'granted') {
-                console.log('✅ 通知权限已授权');
-            }
-        } catch(e) {
-            console.warn('通知权限请求失败:', e);
-        }
-    }
-}, 3000);
-
+// 使用
+if (newMsg && newMsg.sender === 'partner') {
+    sendNotification(
+        (settings.partnerName || '对方') + ' 发来消息',
+        newMsg.text || '语音'
+    );
+}
 
 
