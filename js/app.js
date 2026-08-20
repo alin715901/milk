@@ -354,35 +354,3 @@ setTimeout(() => {
     }
 }, 3000);
 
-// 监听新消息
-setInterval(() => {
-    if (typeof messages === 'undefined' || !messages) return;
-    if (messages.length > lastMsgCount && lastMsgCount > 0) {
-        const msg = messages[messages.length - 1];
-        // 只处理对方（partner）的消息
-        if (msg && msg.sender === 'partner') {
-            if (Notification.permission === 'granted') {
-                const bodyText = msg.text || (msg.voice ? '🎤 语音消息' : '新消息');
-                try {
-                    const notification = new Notification(
-                        (settings.partnerName || '对方') + ' 发来消息',
-                        {
-                            body: bodyText,
-                            icon: 'icon.png',
-                            vibrate: [200, 100, 200],
-                            requireInteraction: true
-                        }
-                    );
-                    notification.onclick = () => {
-                        window.focus();
-                        notification.close();
-                    };
-                    setTimeout(() => notification.close(), 8000);
-                } catch(e) {
-                    console.warn('通知发送失败:', e);
-                }
-            }
-        }
-    }
-    lastMsgCount = messages.length;
-}, 3000);
